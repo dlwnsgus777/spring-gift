@@ -10,11 +10,10 @@
 
 > 누구나 동일하게 실행 가능하고, 프로덕션과 유사한 환경에서 테스트할 수 있는 자동화된 테스트 환경
 
-- [ ] Testcontainers 의존성 추가 (`build.gradle.kts`)
-- [ ] MySQL 컨테이너 기반 통합 테스트 설정 (`@SpringBootTest` + `@Testcontainers`)
-- [ ] 공통 테스트 베이스 클래스 작성 (`AbstractIntegrationTest`)
-- [ ] Flyway 마이그레이션이 테스트 컨테이너에 자동 적용되는지 확인
-- [ ] GitHub Actions CI 설정 — 도커 없이도 동일한 테스트가 실행됨을 확인
+- [x] Testcontainers 의존성 추가 (`build.gradle.kts`)
+- [x] MySQL 컨테이너 기반 통합 테스트 설정 (`@SpringBootTest` + `@Testcontainers`)
+- [x] 공통 테스트 베이스 클래스 작성 (`AbstractIntegrationTest`)
+- [x] Flyway 마이그레이션이 테스트 컨테이너에 자동 적용되는지 확인
 
 ---
 
