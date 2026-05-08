@@ -10,7 +10,7 @@ Testcontainers로 MySQL 컨테이너를 띄워 프로덕션과 동일한 환경�
 
 | 작업 항목 | 설명 |
 |----------|------|
-| **build.gradle.kts 수정** | Testcontainers BOM + MySQL 모듈 의존성 추가 |
+| **build.gradle.kts 수정** | Testcontainers MySQL 모듈 의존성 추가 (BOM 미사용 — Spring Boot 의존성 관리로 버전 자동 관리) |
 | **AbstractIntegrationTest** | MySQL 컨테이너 기반 공통 베이스 클래스 작성 |
 | **Flyway 마이그레이션 검증 테스트** | 컨테이너 기동 후 V1, V2 마이그레이션 정상 적용 확인 |
 
@@ -48,7 +48,7 @@ _해당 없음 — 테스트 인프라 구축 작업으로 API 변경 없음_
 
 | 파일 | 역할 |
 |------|------|
-| `build.gradle.kts` | Testcontainers BOM + `testcontainers-mysql` 의존성 추가 |
+| `build.gradle.kts` | `testcontainers-mysql`, `junit-jupiter` 의존성 추가 (BOM 미사용) |
 | `AbstractIntegrationTest` | `@SpringBootTest` + `@Testcontainers` + MySQL 컨테이너 설정 |
 | `FlywayMigrationTest` | Flyway V1/V2 마이그레이션 정상 적용 검증 |
 
@@ -69,17 +69,14 @@ src/test/java/gift/
 dependencies {
     // 기존 의존성들 유지 ...
 
-    // Testcontainers BOM — 버전 통합 관리
-    testImplementation(platform("org.testcontainers:testcontainers-bom:1.20.4"))
+    // BOM 미사용 — io.spring.dependency-management 플러그인이 버전 자동 관리
     testImplementation("org.testcontainers:mysql")
     testImplementation("org.testcontainers:junit-jupiter")
-
-    // MySQL JDBC 드라이버 (테스트 스코프)
-    testRuntimeOnly("com.mysql:mysql-connector-j")
 }
 ```
 
-> **주의**: `mysql-connector-j`는 프로덕션 의존성에 이미 있을 수 있음. 없다면 `testRuntimeOnly`로 추가.
+> **결정**: `platform("org.testcontainers:testcontainers-bom:...")` 불필요. Spring Boot 의존성 관리가 Testcontainers 버전을 이미 관리한다.
+> `mysql-connector-j`는 `runtimeOnly`에 이미 포함되어 있어 `testRuntimeOnly` 추가 불필요.
 
 ---
 
@@ -157,20 +154,22 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
 
 ## 5. 주요 고려사항
 
-1. **MySQL Connector/J 의존성 중복**: `build.gradle.kts`에 `runtimeOnly("com.mysql:mysql-connector-j")`가 이미 있는지 확인 필요. 있다면 `testRuntimeOnly` 추가 불필요.
-   - 확인 방법: `./gradlew dependencies --configuration testRuntimeClasspath | grep mysql`
+1. ~~**MySQL Connector/J 의존성 중복**~~ → **해결됨**: `runtimeOnly("com.mysql:mysql-connector-j")` 이미 존재. `testRuntimeOnly` 추가 불필요.
 
 2. **application.properties의 H2 설정 충돌**: 현재 `spring.datasource.*` 설정이 H2로 되어 있다면 `@DynamicPropertySource`가 런타임에 오버라이드하므로 충돌 없음. 단, `spring.jpa.hibernate.ddl-auto=create-drop` 등이 있으면 Flyway와 충돌 가능.
    - 대안: `src/test/resources/application-test.properties`에 `spring.jpa.hibernate.ddl-auto=validate` 설정
 
-3. **Testcontainers 버전 호환성**: Spring Boot 3.5.x는 Testcontainers 1.19.x 이상 필요. 1.20.4 사용 시 문제 없음.
+3. ~~**Testcontainers 버전 호환성**~~ → **해결됨**: BOM 미사용, Spring Boot 의존성 관리로 자동 해결.
+
+4. ~~**commons-compress CVE 오버라이드**~~ → **해결됨**: Spring Boot 3.5.9 의존성 관리가 안전한 버전을 이미 관리. `configurations.all` 블록 불필요하여 제거.
 
 ---
 
 ## 6. 구현 순서 (TDD)
 
-1. [ ] `build.gradle.kts` — Testcontainers BOM + mysql 모듈 + junit-jupiter 의존성 추가
-2. [ ] `build.gradle.kts` — MySQL Connector/J 의존성 확인 및 추가 (없는 경우)
+1. [x] `build.gradle.kts` — Testcontainers mysql 모듈 + junit-jupiter 의존성 추가 (BOM 미사용 — Spring Boot 관리)
+2. [x] `build.gradle.kts` — MySQL Connector/J 의존성 확인 (이미 runtimeOnly에 포함 — 추가 불필요)
+   - `configurations.all` commons-compress CVE 오버라이드 불필요 확인 → 제거
 3. [ ] `AbstractIntegrationTest.java` — MySQL 컨테이너 + `@DynamicPropertySource` 작성
 4. [ ] `FlywayMigrationTest.java` — Flyway 마이그레이션 적용 검증 테스트 작성
 5. [ ] 로컬에서 테스트 실행해 Green 확인 (`./gradlew test`)
