@@ -190,6 +190,7 @@ Product.create(name, ...); // 내부에서 검증, 위반 시 예외
 | 프롬프트 | 시도한 내용 | 관련 문서 |
 |----------|-------------|-----------|
 | 구현 요구사항을 분석해서 README에 체크리스트와 구현 전략을 작성해줘 | 프로젝트 코드 전체를 분석하여 6단계 체크리스트와 단계별 구현 전략 작성 | [세션 문서](docs/ai-sessions/2026-05-07.md) |
+| 계획서 기반 Testcontainers MySQL 통합 테스트 환경 구축 | build.gradle.kts 정리, AbstractIntegrationTest·FlywayMigrationTest 작성, 테스트 Green 확인 | [세션 문서](docs/ai-sessions/2026-05-08.md) |
 
 ---
 

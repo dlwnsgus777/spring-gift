@@ -59,4 +59,10 @@ Spring Boot 3.5.9 기반 선물하기 커머스 플랫폼.
 
 - JUnit 5, 테스트 코드는 `src/test/java/gift/` 하위에 Java로 작성
 - AAA 패턴 사용 (`// arrange`, `// act`, `// assert` 주석 필수)
-- **테스트 실행 금지**: 코드 작성 후 `./gradlew test` 직접 실행 금지 (프로젝트 룰)
+- **테스트 메서드 네이밍**: `test01`, `test02`, ... 순번으로 작성하고 `@DisplayName`에 테스트 의도를 명시
+
+### Integration Test
+
+- `AbstractIntegrationTest`를 상속해 MySQL 컨테이너 기반 통합 테스트 작성
+- Testcontainers(`mysql:8.0`)로 컨테이너를 기동하고 `@DynamicPropertySource`로 DataSource를 오버라이드
+- `@Container static` 필드로 선언해 JVM 내 모든 테스트 클래스가 컨테이너를 재사용

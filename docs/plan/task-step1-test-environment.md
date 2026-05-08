@@ -170,15 +170,15 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
 1. [x] `build.gradle.kts` — Testcontainers mysql 모듈 + junit-jupiter 의존성 추가 (BOM 미사용 — Spring Boot 관리)
 2. [x] `build.gradle.kts` — MySQL Connector/J 의존성 확인 (이미 runtimeOnly에 포함 — 추가 불필요)
    - `configurations.all` commons-compress CVE 오버라이드 불필요 확인 → 제거
-3. [ ] `AbstractIntegrationTest.java` — MySQL 컨테이너 + `@DynamicPropertySource` 작성
-4. [ ] `FlywayMigrationTest.java` — Flyway 마이그레이션 적용 검증 테스트 작성
-5. [ ] 로컬에서 테스트 실행해 Green 확인 (`./gradlew test`)
+3. [x] `AbstractIntegrationTest.java` — MySQL 컨테이너 + `@DynamicPropertySource` 작성
+4. [x] `FlywayMigrationTest.java` — Flyway 마이그레이션 적용 검증 테스트 작성
+5. [x] 로컬에서 테스트 실행해 Green 확인 (`./gradlew test`)
 
 ---
 
 ## 7. 인수 조건 (Acceptance Criteria)
 
-- [ ] `./gradlew test` 실행 시 MySQL 컨테이너가 자동으로 기동된다
-- [ ] `FlywayMigrationTest`가 Green — V1, V2 마이그레이션 2개가 정상 적용됨을 검증
-- [ ] `AbstractIntegrationTest`를 상속하는 모든 테스트 클래스가 동일한 컨테이너 인스턴스를 재사용한다 (컨테이너 1회만 기동)
-- [ ] H2 의존성을 제거하지 않아도 테스트 환경은 MySQL 컨테이너를 사용한다
+- [x] `./gradlew test` 실행 시 MySQL 컨테이너가 자동으로 기동된다
+- [x] `FlywayMigrationTest`가 Green — V1, V2 마이그레이션 2개가 정상 적용됨을 검증
+- [x] `AbstractIntegrationTest`를 상속하는 모든 테스트 클래스가 동일한 컨테이너 인스턴스를 재사용한다 (컨테이너 1회만 기동)
+- [x] H2 의존성을 제거하지 않아도 테스트 환경은 MySQL 컨테이너를 사용한다
