@@ -17,7 +17,7 @@
 
 ---
 
-### 2단계: Category 도메인
+### 2단계: Category 도메인 — [구현 계획](docs/plan/task-step2-category-domain.md)
 
 > 가장 단순한 CRUD — 도메인별 패턴을 처음 적용하는 출발점
 
