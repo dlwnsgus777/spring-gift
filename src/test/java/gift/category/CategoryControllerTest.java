@@ -2,13 +2,13 @@ package gift.category;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.AbstractIntegrationTest;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -29,34 +29,23 @@ class CategoryControllerTest extends AbstractIntegrationTest {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @BeforeEach
-    void setUp() {
-        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS=0");
-        categoryRepository.deleteAll();
-        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS=1");
-    }
-
     @Test
     @DisplayName("전체 카테고리 목록을 조회한다")
     void test01() throws Exception {
-        // arrange
-        categoryRepository.save(new Category("전자기기", "#1E90FF", "http://img.url", null));
+        // arrange - Flyway V2 시드 데이터 존재
 
         // act & assert
         mockMvc.perform(get("/api/categories"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$").isArray())
-            .andExpect(jsonPath("$[0].name").value("전자기기"));
+            .andExpect(jsonPath("$").isArray());
     }
 
     @Test
     @DisplayName("카테고리를 생성하면 201과 Location 헤더를 반환한다")
     void test02() throws Exception {
-        // arrange
-        CategoryRequest request = new CategoryRequest("테스트", "#FFFFFF", "http://img.url", null);
+        // arrange - UUID로 다른 테스트와 이름 충돌 방지
+        String uniqueName = "생성_" + UUID.randomUUID();
+        CategoryRequest request = new CategoryRequest(uniqueName, "#FFFFFF", "http://img.url", null);
 
         // act & assert
         mockMvc.perform(post("/api/categories")
@@ -64,7 +53,7 @@ class CategoryControllerTest extends AbstractIntegrationTest {
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isCreated())
             .andExpect(header().exists("Location"))
-            .andExpect(jsonPath("$.name").value("테스트"));
+            .andExpect(jsonPath("$.name").value(uniqueName));
     }
 
     @Test
@@ -83,16 +72,19 @@ class CategoryControllerTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("존재하는 카테고리를 수정하면 변경된 내용을 반환한다")
     void test04() throws Exception {
-        // arrange
-        Category saved = categoryRepository.save(new Category("원래이름", "#000000", "http://img.url", null));
-        CategoryRequest request = new CategoryRequest("바뀐이름", "#FFFFFF", "http://new.url", null);
+        // arrange - 테스트 전용 카테고리 생성
+        Category saved = categoryRepository.save(
+            new Category("수정전_" + UUID.randomUUID(), "#000000", "http://img.url", null)
+        );
+        String updatedName = "수정후_" + UUID.randomUUID();
+        CategoryRequest request = new CategoryRequest(updatedName, "#FFFFFF", "http://new.url", null);
 
         // act & assert
         mockMvc.perform(put("/api/categories/" + saved.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.name").value("바뀐이름"));
+            .andExpect(jsonPath("$.name").value(updatedName));
     }
 
     @Test
@@ -111,8 +103,10 @@ class CategoryControllerTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("카테고리를 삭제하면 204를 반환한다")
     void test06() throws Exception {
-        // arrange
-        Category saved = categoryRepository.save(new Category("삭제대상", "#000000", "http://img.url", null));
+        // arrange - 상품 없는 신규 카테고리 생성
+        Category saved = categoryRepository.save(
+            new Category("삭제_" + UUID.randomUUID(), "#000000", "http://img.url", null)
+        );
 
         // act & assert
         mockMvc.perform(delete("/api/categories/" + saved.getId()))

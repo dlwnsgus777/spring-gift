@@ -363,17 +363,17 @@ class CategoryControllerTest extends AbstractIntegrationTest {
 
 ### 4단계: Service 추출 (구조 변경 — 동작 동일)
 
-- [ ] `CategoryService` 클래스 생성
-- [ ] Controller의 `findAll`, `create`, `update`, `delete` 로직을 Service로 이동
-- [ ] Controller가 Repository 대신 Service를 주입받도록 변경
-- [ ] 통합 테스트 Green 유지 확인
+- [x] `CategoryService` 클래스 생성
+- [x] Controller의 `findAll`, `create`, `update`, `delete` 로직을 Service로 이동
+- [x] Controller가 Repository 대신 Service를 주입받도록 변경
+- [x] 통합 테스트 Green 유지 확인
 
 ---
 
 ## 7. 인수 조건
 
-- [ ] `CategoryControllerTest` 7개 테스트 모두 Green
-- [ ] `CategoryController`가 `CategoryRepository`를 직접 의존하지 않음
-- [ ] `updateCategory`에 `orElse(null)` + null 체크 분기 없음
-- [ ] `GlobalExceptionHandler`가 `NoSuchElementException`을 404로 변환
+- [x] `CategoryControllerTest` 7개 테스트 모두 Green
+- [x] `CategoryController`가 `CategoryRepository`를 직접 의존하지 않음
+- [x] `updateCategory`에 `orElse(null)` + null 체크 분기 없음
+- [x] `GlobalExceptionHandler`가 `NoSuchElementException`을 404로 변환
 - [ ] 전체 테스트 (`./gradlew test`) Green 유지
