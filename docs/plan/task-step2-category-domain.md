@@ -340,26 +340,26 @@ class CategoryControllerTest extends AbstractIntegrationTest {
 
 ### 1단계: 테스트 인프라 준비 (구조 변경)
 
-- [ ] `AbstractIntegrationTest`에 `@AutoConfigureMockMvc` 추가
+가- [x] `AbstractIntegrationTest`에 `@AutoConfigureMockMvc` 추가
 
 ### 2단계: 통합 테스트 작성 (행동 고정)
 
-- [ ] `CategoryControllerTest` 클래스 생성 (AbstractIntegrationTest 상속)
-- [ ] `test01` — GET /api/categories → 200
-- [ ] `test02` — POST /api/categories (유효한 요청) → 201 + Location
-- [ ] `test03` — POST /api/categories (name 빈 값) → 400
-- [ ] `test04` — PUT /api/categories/{id} (존재하는 id) → 200
-- [ ] `test05` — PUT /api/categories/{id} (미존재 id) → 404
-- [ ] `test06` — DELETE /api/categories/{id} (존재하는 id) → 204
-- [ ] `test07` — DELETE /api/categories/{id} (미존재 id) → 204
-- [ ] 전체 테스트 Green 확인
+- [x] `CategoryControllerTest` 클래스 생성 (AbstractIntegrationTest 상속)
+- [x] `test01` — GET /api/categories → 200
+- [x] `test02` — POST /api/categories (유효한 요청) → 201 + Location
+- [x] `test03` — POST /api/categories (name 빈 값) → 400
+- [x] `test04` — PUT /api/categories/{id} (존재하는 id) → 200
+- [x] `test05` — PUT /api/categories/{id} (미존재 id) → 404
+- [x] `test06` — DELETE /api/categories/{id} (존재하는 id) → 204
+- [x] `test07` — DELETE /api/categories/{id} (미존재 id) → 204
+- [x] 전체 테스트 Green 확인
 
 ### 3단계: 스타일 정리 (구조 변경 — 동작 동일)
 
-- [ ] `GlobalExceptionHandler` 생성 (`NoSuchElementException` → 404)
-- [ ] `CategoryController.updateCategory`의 `orElse(null)` → `orElseThrow()` 교체
-- [ ] null 체크 분기 제거
-- [ ] 통합 테스트 Green 유지 확인
+- [x] `GlobalExceptionHandler` 생성 (`NoSuchElementException` → 404)
+- [x] `CategoryController.updateCategory`의 `orElse(null)` → `orElseThrow()` 교체
+- [x] null 체크 분기 제거
+- [x] 통합 테스트 Green 유지 확인
 
 ### 4단계: Service 추출 (구조 변경 — 동작 동일)
 

@@ -43,11 +43,7 @@ public class CategoryController {
         @PathVariable Long id,
         @Valid @RequestBody CategoryRequest request
     ) {
-        Category category = categoryRepository.findById(id).orElse(null);
-        if (category == null) {
-            return ResponseEntity.notFound().build();
-        }
-
+        Category category = categoryRepository.findById(id).orElseThrow();
         category.update(request.name(), request.color(), request.imageUrl(), request.description());
         categoryRepository.save(category);
         return ResponseEntity.ok(CategoryResponse.from(category));
