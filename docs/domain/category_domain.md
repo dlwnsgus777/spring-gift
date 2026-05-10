@@ -1,7 +1,17 @@
 # Category 도메인 분석
 
-> 작성일: 2026-05-09  
+> 최초 작성일: 2026-05-09  
+> 최종 수정일: 2026-05-10  
 > 분석 대상 브랜치: feature/youth-6-fifth-assignment
+
+---
+
+## 변경 히스토리
+
+| 날짜 | 내용 |
+|------|------|
+| 2026-05-09 | 최초 분석 — Controller가 Repository 직접 사용, 테스트 없음 |
+| 2026-05-10 | Query/Command Service 분리, GlobalExceptionHandler 추가, 통합 테스트 3종 작성 |
 
 ---
 
@@ -9,14 +19,24 @@
 
 ```
 src/main/java/gift/category/
-├── Category.java           — JPA Entity
-├── CategoryController.java — REST Controller
-├── CategoryRepository.java — Spring Data JPA Repository
-├── CategoryRequest.java    — 요청 DTO (Java Record)
-└── CategoryResponse.java   — 응답 DTO (Java Record)
+├── Category.java               — JPA Entity
+├── CategoryController.java     — REST Controller (HTTP 입출력만 담당)
+├── CategoryQueryService.java   — 읽기 전용 서비스 (@Transactional(readOnly=true))
+├── CategoryCommandService.java — 상태 변경 서비스 (@Transactional)
+├── CategoryRepository.java     — Spring Data JPA Repository
+├── CategoryRequest.java        — 요청 DTO (Java Record)
+└── CategoryResponse.java       — 응답 DTO (Java Record)
+
+src/main/java/gift/common/
+└── GlobalExceptionHandler.java — NoSuchElementException → 404
 ```
 
-테스트 파일: 없음
+```
+src/test/java/gift/category/
+├── CategoryControllerTest.java     — API 통합 테스트 (MockMvc)
+├── CategoryQueryServiceTest.java   — QueryService 통합 테스트 (@Transactional)
+└── CategoryCommandServiceTest.java — CommandService 통합 테스트 (@Transactional)
+```
 
 ---
 
@@ -90,7 +110,35 @@ public class Category {
 
 ---
 
-## 5. API 명세 (CategoryController.java)
+## 5. Service 계층
+
+### CategoryQueryService
+
+```java
+@Service
+@Transactional(readOnly = true)
+public class CategoryQueryService {
+    public List<Category> findAll();   // 도메인 객체 반환
+}
+```
+
+### CategoryCommandService
+
+```java
+@Service
+@Transactional
+public class CategoryCommandService {
+    public Category create(CategoryRequest request);
+    public Category update(Long id, CategoryRequest request);  // 미존재 id → NoSuchElementException
+    public void delete(Long id);
+}
+```
+
+> Service는 도메인 객체(`Category`)를 반환한다. `CategoryResponse` 변환은 Controller 책임이다.
+
+---
+
+## 6. API 명세 (CategoryController.java)
 
 | HTTP | 경로 | 동작 | 요청 | 성공 응답 |
 |------|------|------|------|----------|
@@ -101,9 +149,12 @@ public class Category {
 
 인증 없이 접근 가능하다. (상품·주문 API와 달리 `@AuthenticationPrincipal` 미사용)
 
+미존재 id 수정 → `NoSuchElementException` → `GlobalExceptionHandler` → 404  
+미존재 id 삭제 → 204 (멱등성 유지)
+
 ---
 
-## 6. DTO 설계
+## 7. DTO 설계
 
 ### CategoryRequest
 
@@ -130,10 +181,11 @@ public record CategoryResponse(Long id, String name, String color, String imageU
 ```
 
 - 정적 팩토리 메서드 `from(Category)` 패턴
+- Controller에서만 생성한다 — Service는 이 타입을 사용하지 않는다
 
 ---
 
-## 7. 다른 도메인과의 관계
+## 8. 다른 도메인과의 관계
 
 ```
 Category (1)

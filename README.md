@@ -174,6 +174,7 @@ new Product(name, ...); // 내부에서 검증, 위반 시 예외
 | 구현 요구사항을 분석해서 README에 체크리스트와 구현 전략을 작성해줘 | 프로젝트 코드 전체를 분석하여 6단계 체크리스트와 단계별 구현 전략 작성 | [세션 문서](docs/ai-sessions/2026-05-07.md) |
 | 계획서 기반 Testcontainers MySQL 통합 테스트 환경 구축 | build.gradle.kts 정리, AbstractIntegrationTest·FlywayMigrationTest 작성, 테스트 Green 확인 | [세션 문서](docs/ai-sessions/2026-05-08.md) |
 | 구현 전략을 도메인별 수직 슬라이스로 변경해줘 | 관심사 횡단 6단계 → 도메인별 7단계로 README 재편성, ADR 002 작성 | [세션 문서](docs/ai-sessions/2026-05-09.md) |
+| Category 도메인 정리 — Query/Command 서비스 분리 + 병렬 테스트 격리 | GlobalExceptionHandler 추가, CategoryQueryService/CategoryCommandService TDD 구현, 싱글턴 컨테이너 패턴 적용 | [세션 문서](docs/ai-sessions/2026-05-10.md) |
 
 ---
 
