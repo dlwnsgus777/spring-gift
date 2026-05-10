@@ -21,9 +21,9 @@
 
 > 가장 단순한 CRUD — 도메인별 패턴을 처음 적용하는 출발점
 
-- [ ] `CategoryController` API 통합 테스트 작성 (`AbstractIntegrationTest` 상속)
-- [ ] `CategoryController` 스타일 정리 — `orElse(null)` → Optional 패턴
-- [ ] `CategoryService` 추출 — Controller에서 Repository 의존성 분리
+- [x] `CategoryController` API 통합 테스트 작성 (`AbstractIntegrationTest` 상속)
+- [x] `CategoryController` 스타일 정리 — `orElse(null)` → Optional 패턴
+- [x] `CategoryService` 추출 — Controller에서 Repository 의존성 분리 (`CategoryQueryService` / `CategoryCommandService` 분리)
 
 ---
 
