@@ -37,7 +37,16 @@
 
 ---
 
-### 4단계: Point 도메인
+### 4단계: KakaoAuth 도메인
+
+> Kakao OAuth2 콜백 로직 — auth 패키지 서비스 계층 완성
+
+- [ ] `KakaoAuthController` API 통합 테스트 작성 — `/api/auth/kakao/login` 리다이렉트 302, `/api/auth/kakao/callback` 흐름 테스트
+- [ ] `KakaoAuthService` 추출 — `callback()` 로직(토큰 교환 → 회원 조회/생성 → JWT 발급) 분리, Controller의 `MemberRepository` · `JwtProvider` 직접 의존 제거
+
+---
+
+### 5단계: Point 도메인
 
 > Member에서 분리된 포인트 충전 로직 — 별도 패키지로 책임 이동
 
@@ -45,7 +54,7 @@
 
 ---
 
-### 5단계: Product 도메인
+### 6단계: Product 도메인
 
 > 검증 로직 + 2개 Repository — 도메인 책임 이동 첫 적용
 
@@ -57,7 +66,7 @@
 
 ---
 
-### 6단계: Option 도메인
+### 7단계: Option 도메인
 
 > 비즈니스 규칙(최소 1개 옵션) + 검증 로직 — 도메인 책임 이동 심화
 
@@ -69,7 +78,7 @@
 
 ---
 
-### 7단계: Wish 도메인
+### 8단계: Wish 도메인
 
 > 인증 + 중복 체크 + 2개 Repository
 
@@ -79,7 +88,7 @@
 
 ---
 
-### 8단계: Order 도메인
+### 9단계: Order 도메인
 
 > 가장 복잡 — 5개 Repository, 트랜잭션, 누락 기능, 도메인 책임
 
@@ -113,10 +122,12 @@
 |------|--------|-----------|
 | 2 | Category | 단순 CRUD — 패턴 적용 출발점 |
 | 3 | Member | 등록·로그인 로직 분리 |
-| 4 | Product | `ProductNameValidator` → `Product` 생성자 이동 |
-| 5 | Option | `OptionNameValidator` → `Option` 생성자 이동 + 비즈니스 규칙 |
-| 6 | Wish | 인증 + 중복 체크 흐름 정리 |
-| 7 | Order | 트랜잭션 + 누락 기능 + 가장 복잡한 흐름 |
+| 4 | KakaoAuth | Kakao OAuth2 콜백 서비스 추출 |
+| 5 | Point | `MemberCommandService.chargePoint()` → `gift/point` 패키지 분리 |
+| 6 | Product | `ProductNameValidator` → `Product` 생성자 이동 |
+| 7 | Option | `OptionNameValidator` → `Option` 생성자 이동 + 비즈니스 규칙 |
+| 8 | Wish | 인증 + 중복 체크 흐름 정리 |
+| 9 | Order | 트랜잭션 + 누락 기능 + 가장 복잡한 흐름 |
 
 ---
 
@@ -183,6 +194,7 @@ new Product(name, ...); // 내부에서 검증, 위반 시 예외
 | 계획서 기반 Testcontainers MySQL 통합 테스트 환경 구축 | build.gradle.kts 정리, AbstractIntegrationTest·FlywayMigrationTest 작성, 테스트 Green 확인 | [세션 문서](docs/ai-sessions/2026-05-08.md) |
 | 구현 전략을 도메인별 수직 슬라이스로 변경해줘 | 관심사 횡단 6단계 → 도메인별 7단계로 README 재편성, ADR 002 작성 | [세션 문서](docs/ai-sessions/2026-05-09.md) |
 | Category 도메인 정리 — Query/Command 서비스 분리 + 병렬 테스트 격리 | GlobalExceptionHandler 추가, CategoryQueryService/CategoryCommandService TDD 구현, 싱글턴 컨테이너 패턴 적용 | [세션 문서](docs/ai-sessions/2026-05-10.md) |
+| Member 도메인 3단계 — 통합 테스트 + AuthService/MemberQueryService/MemberCommandService TDD 추출 | 테스트 환경 분리(ADR 005), 서비스 3개 TDD 구현, 컨트롤러 리팩터링, dirty checking으로 불필요한 save() 제거 | [세션 문서](docs/ai-sessions/2026-05-11.md) |
 
 ---
 
@@ -191,7 +203,8 @@ new Product(name, ...); // 내부에서 검증, 위반 시 예외
 | 항목 | 현재 상태 |
 |------|-----------|
 | 테스트 환경 | Testcontainers MySQL 컨테이너 + Flyway 마이그레이션 검증 완료 |
-| Service 계층 | 없음 (Controller가 Repository 직접 사용) |
-| 트랜잭션 | 미적용 (`@Transactional` 없음) |
+| Service 계층 | Category / Member 완료. Product·Option·Wish·Order는 Controller가 Repository 직접 사용 |
+| 트랜잭션 | Category·Member·Auth 서비스에 `@Transactional` 적용 완료. 나머지 도메인 미적용 |
+| 예외 처리 | `GlobalExceptionHandler`로 일원화 (`NoSuchElementException` → 404, `IllegalArgumentException` → 400) |
 | 위시리스트 자동 삭제 | 미구현 (Order 흐름 주석에 의도만 존재) |
 | 도메인 검증 | 외부 유틸 클래스에 위치 (`ProductNameValidator`, `OptionNameValidator`) |

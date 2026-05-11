@@ -499,35 +499,35 @@ class AdminMemberControllerTest extends AbstractIntegrationTest {
 
 ### 스타일 정리 (구조 변경 없음)
 
-- [ ] `MemberController`, `AdminMemberController`, `Member`, `MemberRepository`, `MemberRequest` 클래스 레벨 Javadoc 제거
-- [ ] `GlobalExceptionHandler`에 `IllegalArgumentException` → 400 처리 추가
-- [ ] `MemberController` 로컬 `@ExceptionHandler` 제거
+- [x] `MemberController`, `AdminMemberController`, `Member`, `MemberRepository`, `MemberRequest` 클래스 레벨 Javadoc 제거
+- [x] `GlobalExceptionHandler`에 `IllegalArgumentException` → 400 처리 추가
+- [x] `MemberController` 로컬 `@ExceptionHandler` 제거
 
 ### 통합 테스트 작성 (현재 동작 고정)
 
-- [ ] `MemberControllerTest` 작성 — register 성공/실패(3케이스), login 성공/실패(2케이스) 총 6개
-- [ ] `AdminMemberControllerTest` 작성 — HTTP 상태 + redirect 7개 케이스
-- [ ] 테스트 Green 확인
+- [x] `MemberControllerTest` 작성 — register 성공/실패(3케이스), login 성공/실패(2케이스) 총 6개
+- [x] `AdminMemberControllerTest` 작성 — HTTP 상태 + redirect 7개 케이스
+- [x] 테스트 Green 확인
 
 ### 서비스 추출 (구조 변경, 동작 불변)
 
-- [ ] `MemberQueryService` 작성 — `findAll()`, `findById()`, `findByEmail()`
-- [ ] `MemberCommandService` 작성 — `create()`, `update()`, `delete()`, `chargePoint()`
-- [ ] `AuthService` 작성 — `register()`(저장+JWT), `login()`(검증+JWT) + MemberRepository, MemberQueryService, JwtProvider 의존
-- [ ] `MemberController` 리팩터링 — `AuthService` 주입, Repository/JwtProvider 직접 의존 제거
-- [ ] `AdminMemberController` 리팩터링 — `MemberQueryService` + `MemberCommandService` 주입
-- [ ] 통합 테스트 Green 재확인
+- [x] `MemberQueryService` 작성 — `findAll()`, `findById()`, `findByEmail()`
+- [x] `MemberCommandService` 작성 — `create()`, `update()`, `delete()`, `chargePoint()`
+- [x] `AuthService` 작성 — `register()`(저장+JWT), `login()`(검증+JWT) + MemberRepository, MemberQueryService, JwtProvider 의존
+- [x] `MemberController` 리팩터링 — `AuthService` 주입, Repository/JwtProvider 직접 의존 제거
+- [x] `AdminMemberController` 리팩터링 — `MemberQueryService` + `MemberCommandService` 주입
+- [x] 통합 테스트 Green 재확인
 
 ---
 
 ## 7. 인수 조건 (Acceptance Criteria)
 
-- [ ] `MemberControllerTest` 전체 Green
-- [ ] `AdminMemberControllerTest` 전체 Green
-- [ ] `MemberController`가 `AuthService`만 의존 (Repository, JwtProvider 직접 주입 없음)
-- [ ] `AdminMemberController`가 Repository를 직접 주입하지 않음
-- [ ] `MemberController`에 `@ExceptionHandler`가 없음
-- [ ] `GlobalExceptionHandler`가 `IllegalArgumentException` → 400을 처리함
-- [ ] JWT 발급이 `AuthService`에서 이루어짐 (Controller 레벨에서 JwtProvider 미호출)
-- [ ] 포인트 충전이 `MemberCommandService.chargePoint()`에서 이루어짐 (4단계에서 point 패키지로 분리 예정)
-- [ ] 모든 클래스 레벨 Javadoc (`@author`, `@since`) 제거됨
+- [x] `MemberControllerTest` 전체 Green
+- [x] `AdminMemberControllerTest` 전체 Green
+- [x] `MemberController`가 `AuthService`만 의존 (Repository, JwtProvider 직접 주입 없음)
+- [x] `AdminMemberController`가 Repository를 직접 주입하지 않음
+- [x] `MemberController`에 `@ExceptionHandler`가 없음
+- [x] `GlobalExceptionHandler`가 `IllegalArgumentException` → 400을 처리함
+- [x] JWT 발급이 `AuthService`에서 이루어짐 (Controller 레벨에서 JwtProvider 미호출)
+- [x] 포인트 충전이 `MemberCommandService.chargePoint()`에서 이루어짐 (4단계에서 point 패키지로 분리 예정)
+- [x] 모든 클래스 레벨 Javadoc (`@author`, `@since`) 제거됨
