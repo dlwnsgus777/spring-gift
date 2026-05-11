@@ -37,16 +37,7 @@
 
 ---
 
-### 4단계: KakaoAuth 도메인
-
-> Kakao OAuth2 콜백 로직 — auth 패키지 서비스 계층 완성
-
-- [ ] `KakaoAuthController` API 통합 테스트 작성 — `/api/auth/kakao/login` 리다이렉트 302, `/api/auth/kakao/callback` 흐름 테스트
-- [ ] `KakaoAuthService` 추출 — `callback()` 로직(토큰 교환 → 회원 조회/생성 → JWT 발급) 분리, Controller의 `MemberRepository` · `JwtProvider` 직접 의존 제거
-
----
-
-### 5단계: Point 도메인
+### 4단계: Point 도메인
 
 > Member에서 분리된 포인트 충전 로직 — 별도 패키지로 책임 이동
 
@@ -54,7 +45,7 @@
 
 ---
 
-### 6단계: Product 도메인
+### 5단계: Product 도메인
 
 > 검증 로직 + 2개 Repository — 도메인 책임 이동 첫 적용
 
@@ -66,7 +57,7 @@
 
 ---
 
-### 7단계: Option 도메인
+### 6단계: Option 도메인
 
 > 비즈니스 규칙(최소 1개 옵션) + 검증 로직 — 도메인 책임 이동 심화
 
@@ -78,7 +69,7 @@
 
 ---
 
-### 8단계: Wish 도메인
+### 7단계: Wish 도메인
 
 > 인증 + 중복 체크 + 2개 Repository
 
@@ -88,7 +79,7 @@
 
 ---
 
-### 9단계: Order 도메인
+### 8단계: Order 도메인
 
 > 가장 복잡 — 5개 Repository, 트랜잭션, 누락 기능, 도메인 책임
 
@@ -100,6 +91,15 @@
 - [ ] 위시리스트 자동 삭제 구현 — 주문한 상품이 위시리스트에 있으면 자동 삭제 (`WishRepository.findByMemberIdAndProductId()` 활용)
 - [ ] 위시리스트 자동 삭제 전후 동작 차이를 테스트로 증명 (주문 후 위시에서 사라짐)
 - [ ] 포인트 충분 여부 확인 — `Member.deductPoint()` 내부 예외로 처리
+
+---
+
+### 9단계: KakaoAuth 도메인
+
+> Kakao OAuth2 콜백 로직 — auth 패키지 서비스 계층 완성
+
+- [ ] `KakaoAuthController` API 통합 테스트 작성 — `/api/auth/kakao/login` 리다이렉트 302, `/api/auth/kakao/callback` 흐름 테스트
+- [ ] `KakaoAuthService` 추출 — `callback()` 로직(토큰 교환 → 회원 조회/생성 → JWT 발급) 분리, Controller의 `MemberRepository` · `JwtProvider` 직접 의존 제거
 
 ---
 
@@ -122,12 +122,12 @@
 |------|--------|-----------|
 | 2 | Category | 단순 CRUD — 패턴 적용 출발점 |
 | 3 | Member | 등록·로그인 로직 분리 |
-| 4 | KakaoAuth | Kakao OAuth2 콜백 서비스 추출 |
-| 5 | Point | `MemberCommandService.chargePoint()` → `gift/point` 패키지 분리 |
-| 6 | Product | `ProductNameValidator` → `Product` 생성자 이동 |
-| 7 | Option | `OptionNameValidator` → `Option` 생성자 이동 + 비즈니스 규칙 |
-| 8 | Wish | 인증 + 중복 체크 흐름 정리 |
-| 9 | Order | 트랜잭션 + 누락 기능 + 가장 복잡한 흐름 |
+| 4 | Point | `MemberCommandService.chargePoint()` → `gift/point` 패키지 분리 |
+| 5 | Product | `ProductNameValidator` → `Product` 생성자 이동 |
+| 6 | Option | `OptionNameValidator` → `Option` 생성자 이동 + 비즈니스 규칙 |
+| 7 | Wish | 인증 + 중복 체크 흐름 정리 |
+| 8 | Order | 트랜잭션 + 누락 기능 + 가장 복잡한 흐름 |
+| 9 | KakaoAuth | Kakao OAuth2 콜백 서비스 추출 |
 
 ---
 
@@ -170,7 +170,7 @@ Controller는 Service 호출 + HTTP 응답 변환만 남김
 
 ---
 
-### 도메인 검증 책임 이동 (4, 5단계)
+### 도메인 검증 책임 이동 (5, 6단계)
 
 검증 로직이 정적 유틸이나 Controller 분기문에 있으면, 도메인 객체가 잘못된 상태로 생성될 수 있다.
 
