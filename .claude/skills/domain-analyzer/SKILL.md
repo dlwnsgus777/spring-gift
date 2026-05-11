@@ -1,6 +1,6 @@
 ---
 name: domain-analyzer
-description: Spring Boot 프로젝트의 특정 도메인을 분석해 docs/domain/ 하위에 마크다운 문서를 생성한다. "도메인 분석해줘", "도메인 규칙 추출해줘", "도메인 문서 작성해줘", "<도메인명> 분석해줘", "docs/domain 에 문서 만들어줘" 등을 요청할 때 사용한다. 도메인 패키지(Entity, Controller, Repository, DTO)와 Flyway 마이그레이션 파일을 읽어 비즈니스 로직을 도메인 관점에서 서술한다.
+description: Spring Boot 프로젝트의 특정 도메인을 분석해 docs/domain/ 하위에 마크다운 문서를 생성한다. "도메인 분석해줘", "도메인 규칙 추출해줘", "도메인 문서 작성해줘", "<도메인명> 분석해줘", "docs/domain 에 문서 만들어줘", "도메인 정리해줘", "<도메인명> 정리해줘" 등을 요청할 때 사용한다. 도메인 패키지(Entity, Controller, Repository, DTO)와 Flyway 마이그레이션 파일을 읽어 비즈니스 로직을 도메인 관점에서 서술한다.
 ---
 
 ## 목적
