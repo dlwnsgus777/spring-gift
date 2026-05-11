@@ -27,7 +27,7 @@
 
 ---
 
-### 3단계: Member 도메인
+### 3단계: Member 도메인 — [구현 계획](docs/plan/task-step3-member-domain.md)
 
 > 회원 등록·로그인 로직 — 인증 흐름을 도메인 계층으로 분리
 
@@ -37,7 +37,15 @@
 
 ---
 
-### 4단계: Product 도메인
+### 4단계: Point 도메인
+
+> Member에서 분리된 포인트 충전 로직 — 별도 패키지로 책임 이동
+
+- [ ] `PointCommandService` 추출 — `AdminMemberController`의 포인트 충전 로직을 `gift/point` 패키지로 분리
+
+---
+
+### 5단계: Product 도메인
 
 > 검증 로직 + 2개 Repository — 도메인 책임 이동 첫 적용
 
@@ -49,7 +57,7 @@
 
 ---
 
-### 5단계: Option 도메인
+### 6단계: Option 도메인
 
 > 비즈니스 규칙(최소 1개 옵션) + 검증 로직 — 도메인 책임 이동 심화
 
@@ -61,7 +69,7 @@
 
 ---
 
-### 6단계: Wish 도메인
+### 7단계: Wish 도메인
 
 > 인증 + 중복 체크 + 2개 Repository
 
@@ -71,7 +79,7 @@
 
 ---
 
-### 7단계: Order 도메인
+### 8단계: Order 도메인
 
 > 가장 복잡 — 5개 Repository, 트랜잭션, 누락 기능, 도메인 책임
 
