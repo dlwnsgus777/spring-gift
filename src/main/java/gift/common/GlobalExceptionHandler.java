@@ -13,4 +13,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Void> handleNotFound(NoSuchElementException e) {
         return ResponseEntity.notFound().build();
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
 }
