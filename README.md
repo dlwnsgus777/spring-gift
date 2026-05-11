@@ -37,11 +37,11 @@
 
 ---
 
-### 4단계: Point 도메인
+### 4단계: Point 도메인 — [구현 계획](docs/plan/task-step4-point-domain.md)
 
 > Member에서 분리된 포인트 충전 로직 — 별도 패키지로 책임 이동
 
-- [ ] `PointCommandService` 추출 — `AdminMemberController`의 포인트 충전 로직을 `gift/point` 패키지로 분리
+- [x] `Point` `@Embeddable` VO 추출 — `gift/point` 패키지에 신규 생성, `Member.chargePoint()`·`deductPoint()`를 Point에 위임 (ADR 006)
 
 ---
 

@@ -1,5 +1,7 @@
 package gift.member;
 
+import gift.point.Point;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,7 +19,8 @@ public class Member {
 
     private String kakaoAccessToken;
 
-    private int point;
+    @Embedded
+    private Point point = new Point(0);
 
     protected Member() {
     }
@@ -41,21 +44,11 @@ public class Member {
     }
 
     public void chargePoint(int amount) {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("Amount must be greater than zero.");
-        }
-        this.point += amount;
+        this.point = this.point.charge(amount);
     }
 
-    // point deduction for order payment
     public void deductPoint(int amount) {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("차감 금액은 1 이상이어야 합니다.");
-        }
-        if (amount > this.point) {
-            throw new IllegalArgumentException("포인트가 부족합니다.");
-        }
-        this.point -= amount;
+        this.point = this.point.deduct(amount);
     }
 
     public Long getId() {
@@ -75,6 +68,6 @@ public class Member {
     }
 
     public int getPoint() {
-        return point;
+        return point.getValue();
     }
 }
