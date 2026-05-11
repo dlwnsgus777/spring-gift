@@ -9,12 +9,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-/**
- * Admin controller for managing members.
- *
- * @author brian.kim
- * @since 1.0
- */
 @Controller
 @RequestMapping("/admin/members")
 public class AdminMemberController {
