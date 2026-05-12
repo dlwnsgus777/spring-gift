@@ -1,0 +1,66 @@
+package gift.product;
+
+import gift.category.Category;
+import gift.category.CategoryQueryService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@Transactional
+public class ProductCommandService {
+
+    private final ProductRepository productRepository;
+    private final ProductQueryService productQueryService;
+    private final CategoryQueryService categoryQueryService;
+
+    public ProductCommandService(
+        ProductRepository productRepository,
+        ProductQueryService productQueryService,
+        CategoryQueryService categoryQueryService
+    ) {
+        this.productRepository = productRepository;
+        this.productQueryService = productQueryService;
+        this.categoryQueryService = categoryQueryService;
+    }
+
+    public Product create(ProductRequest request) {
+        validateKakao(request.name());
+        return save(request);
+    }
+
+    public Product createForAdmin(ProductRequest request) {
+        return save(request);
+    }
+
+    public Product update(Long id, ProductRequest request) {
+        validateKakao(request.name());
+        return applyUpdate(id, request);
+    }
+
+    public Product updateForAdmin(Long id, ProductRequest request) {
+        return applyUpdate(id, request);
+    }
+
+    public void delete(Long id) {
+        productRepository.deleteById(id);
+    }
+
+    private Product save(ProductRequest request) {
+        Category category = categoryQueryService.findById(request.categoryId());
+        return productRepository.save(request.toEntity(category));
+    }
+
+    private Product applyUpdate(Long id, ProductRequest request) {
+        Product product = productQueryService.findById(id);
+        Category category = categoryQueryService.findById(request.categoryId());
+        product.update(request.name(), request.price(), request.imageUrl(), category);
+        return product;
+    }
+
+    private void validateKakao(String name) {
+        if (name != null && name.contains("카카오")) {
+            throw new IllegalArgumentException(
+                "\"카카오\"가 포함된 상품명은 담당 MD와 협의한 경우에만 사용할 수 있습니다.");
+        }
+    }
+}

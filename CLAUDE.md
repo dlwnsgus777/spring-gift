@@ -70,6 +70,23 @@ Spring Boot 3.5.9 기반 선물하기 커머스 플랫폼.
 - **Kakao Message**: 주문 완료 후 알림 발송 (`KakaoMessageClient`)
 - **JWT**: JJWT 0.13.0, secret/expiration은 `application.properties`로 외부화
 
+## TDD 사이클
+
+코드 변경 유형에 따라 아래 사이클을 반드시 따른다. **각 단계에서 테스트 실행 결과를 직접 확인하기 전까지 다음 단계로 넘어가지 않는다.**
+
+### 새 동작 추가 / 버그 수정 → Red → Green → Refactor
+
+1. **Red**: 구현할 동작을 테스트로 먼저 작성하고, 테스트가 실패하는 것을 `./gradlew test`로 직접 확인한다.
+   - 컴파일 에러로 실패해도 Red로 인정한다.
+   - 이미 Green이면 테스트가 해당 동작을 검증하지 못하는 것이므로 테스트를 다시 작성한다.
+2. **Green**: 테스트를 통과시키는 최소한의 코드를 작성하고, 테스트가 통과하는 것을 확인한다.
+3. **Refactor**: 코드를 정리하고, 테스트가 여전히 Green인지 확인한다.
+
+### 리팩터링 / 스타일 정리 → Green → [변경] → Green
+
+1. 변경 전, 해당 동작을 커버하는 테스트가 Green인지 먼저 확인한다. 테스트가 없으면 작성한다.
+2. 변경 후, 테스트가 여전히 Green인지 확인한다.
+
 ## Testing
 
 - JUnit 5, 테스트 코드는 `src/test/java/gift/` 하위에 Java로 작성

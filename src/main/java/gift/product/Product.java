@@ -34,6 +34,7 @@ public class Product {
     }
 
     public Product(String name, int price, String imageUrl, Category category) {
+        validateName(name);
         this.name = name;
         this.price = price;
         this.imageUrl = imageUrl;
@@ -41,6 +42,7 @@ public class Product {
     }
 
     public void update(String name, int price, String imageUrl, Category category) {
+        validateName(name);
         this.name = name;
         this.price = price;
         this.imageUrl = imageUrl;
@@ -69,5 +71,12 @@ public class Product {
 
     public List<Option> getOptions() {
         return options;
+    }
+
+    private static void validateName(String name) {
+        List<String> errors = ProductNameValidator.validate(name, true);
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(String.join(", ", errors));
+        }
     }
 }

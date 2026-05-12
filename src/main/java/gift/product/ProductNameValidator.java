@@ -12,10 +12,6 @@ public class ProductNameValidator {
     private ProductNameValidator() {
     }
 
-    public static List<String> validate(String name) {
-        return validate(name, false);
-    }
-
     public static List<String> validate(String name, boolean allowKakao) {
         List<String> errors = new ArrayList<>();
 

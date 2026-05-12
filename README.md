@@ -31,9 +31,9 @@
 
 > 회원 등록·로그인 로직 — 인증 흐름을 도메인 계층으로 분리
 
-- [ ] `MemberController`, `AdminMemberController` API 통합 테스트 작성
-- [ ] `MemberController` 스타일 정리 — 의미 없는 클래스 레벨 Javadoc 제거
-- [ ] `MemberService` 추출 — 등록·로그인 비즈니스 로직 분리
+- [x] `MemberController`, `AdminMemberController` API 통합 테스트 작성
+- [x] `MemberController` 스타일 정리 — 의미 없는 클래스 레벨 Javadoc 제거
+- [x] `MemberService` 추출 — 등록·로그인 비즈니스 로직 분리
 
 ---
 
@@ -45,15 +45,15 @@
 
 ---
 
-### 5단계: Product 도메인
+### 5단계: Product 도메인 — [구현 계획](docs/plan/task-step5-product-domain.md)
 
 > 검증 로직 + 2개 Repository — 도메인 책임 이동 첫 적용
 
-- [ ] `ProductController`, `AdminProductController` API 통합 테스트 작성
-- [ ] `ProductController` 스타일 정리 — `orElse(null)` → Optional 패턴 (4곳)
-- [ ] `ProductService` 추출 — `validateName()`, `CategoryRepository` 직접 조회 분리
-- [ ] `ProductNameValidator.validate()` → `Product` 생성자 내부 검증으로 이동
-- [ ] `Product` 단위 테스트 — Entity 레벨 불변식 검증
+- [x] `ProductController`, `AdminProductController` API 통합 테스트 작성
+- [x] `ProductController` 스타일 정리 — `orElse(null)` → Optional 패턴 (4곳)
+- [x] `ProductService` 추출 — `validateName()`, `CategoryRepository` 직접 조회 분리
+- [x] `ProductNameValidator.validate()` → `Product` 생성자 내부 검증으로 이동
+- [x] `Product` 단위 테스트 — Entity 레벨 불변식 검증
 
 ---
 
@@ -196,6 +196,7 @@ new Product(name, ...); // 내부에서 검증, 위반 시 예외
 | Category 도메인 정리 — Query/Command 서비스 분리 + 병렬 테스트 격리 | GlobalExceptionHandler 추가, CategoryQueryService/CategoryCommandService TDD 구현, 싱글턴 컨테이너 패턴 적용 | [세션 문서](docs/ai-sessions/2026-05-10.md) |
 | Member 도메인 3단계 — 통합 테스트 + AuthService/MemberQueryService/MemberCommandService TDD 추출 | 테스트 환경 분리(ADR 005), 서비스 3개 TDD 구현, 컨트롤러 리팩터링, dirty checking으로 불필요한 save() 제거 | [세션 문서](docs/ai-sessions/2026-05-11.md) |
 | Point 도메인 4단계 — Point @Embeddable VO TDD 구현, PointCommandService 시도 후 설계 검토로 제거 결정 | README 순서 재편성, 도메인 분석·계획서 작성, Point VO TDD, PointCommandService 설계 문제 발견·철회, ADR 006 작성 | [세션 문서](docs/ai-sessions/2026-05-11-2.md) |
+| Product 도메인 5단계 — Query/Command 서비스 분리, 생성자 검증 이동, Admin 카카오 허용 방식 결정 | 도메인 분석·계획서 작성, ProductController/AdminProductController 통합 테스트, ProductQueryService/ProductCommandService TDD, Product 생성자 검증 이동, 미사용 코드 정리 | [세션 문서](docs/ai-sessions/2026-05-12.md) |
 
 ---
 
@@ -204,8 +205,8 @@ new Product(name, ...); // 내부에서 검증, 위반 시 예외
 | 항목 | 현재 상태 |
 |------|-----------|
 | 테스트 환경 | Testcontainers MySQL 컨테이너 + Flyway 마이그레이션 검증 완료 |
-| Service 계층 | Category / Member 완료. Product·Option·Wish·Order는 Controller가 Repository 직접 사용 |
-| 트랜잭션 | Category·Member·Auth 서비스에 `@Transactional` 적용 완료. 나머지 도메인 미적용 |
+| Service 계층 | Category / Member / Product 완료. Option·Wish·Order는 Controller가 Repository 직접 사용 |
+| 트랜잭션 | Category·Member·Auth·Product 서비스에 `@Transactional` 적용 완료. 나머지 도메인 미적용 |
 | 예외 처리 | `GlobalExceptionHandler`로 일원화 (`NoSuchElementException` → 404, `IllegalArgumentException` → 400) |
 | 위시리스트 자동 삭제 | 미구현 (Order 흐름 주석에 의도만 존재) |
-| 도메인 검증 | 외부 유틸 클래스에 위치 (`ProductNameValidator`, `OptionNameValidator`) |
+| 도메인 검증 | Product 생성자로 이동 완료. `OptionNameValidator`는 외부 유틸 클래스에 위치 |
