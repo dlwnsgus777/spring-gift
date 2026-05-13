@@ -57,15 +57,15 @@
 
 ---
 
-### 6단계: Option 도메인
+### 6단계: Option 도메인 — [구현 계획](docs/plan/task-step6-option-domain.md)
 
 > 비즈니스 규칙(최소 1개 옵션) + 검증 로직 — 도메인 책임 이동 심화
 
-- [ ] `OptionController` API 통합 테스트 작성
-- [ ] `OptionController` 스타일 정리 — `orElse(null)` → Optional 패턴, `Collectors.toList()` → `.toList()`
-- [ ] `OptionService` 추출 — `validateName()`, 중복 체크 로직 분리
-- [ ] `OptionNameValidator.validate()` → `Option` 생성 시점 검증으로 이동
-- [ ] `Option` 단위 테스트 — Entity 레벨 불변식 검증
+- [x] `OptionController` API 통합 테스트 작성
+- [x] `OptionController` 스타일 정리 — `orElse(null)` → Optional 패턴, `Collectors.toList()` → `.toList()`
+- [x] `OptionService` 추출 — `validateName()`, 중복 체크 로직 분리 (`OptionQueryService` / `OptionCommandService`)
+- [x] `OptionNameValidator.validate()` → `Option` 생성 시점 검증으로 이동
+- [x] `Option` 단위 테스트 — Entity 레벨 불변식 검증 (`validateDeletion()` 포함)
 
 ---
 
@@ -197,6 +197,7 @@ new Product(name, ...); // 내부에서 검증, 위반 시 예외
 | Member 도메인 3단계 — 통합 테스트 + AuthService/MemberQueryService/MemberCommandService TDD 추출 | 테스트 환경 분리(ADR 005), 서비스 3개 TDD 구현, 컨트롤러 리팩터링, dirty checking으로 불필요한 save() 제거 | [세션 문서](docs/ai-sessions/2026-05-11.md) |
 | Point 도메인 4단계 — Point @Embeddable VO TDD 구현, PointCommandService 시도 후 설계 검토로 제거 결정 | README 순서 재편성, 도메인 분석·계획서 작성, Point VO TDD, PointCommandService 설계 문제 발견·철회, ADR 006 작성 | [세션 문서](docs/ai-sessions/2026-05-11-2.md) |
 | Product 도메인 5단계 — Query/Command 서비스 분리, 생성자 검증 이동, Admin 카카오 허용 방식 결정 | 도메인 분석·계획서 작성, ProductController/AdminProductController 통합 테스트, ProductQueryService/ProductCommandService TDD, Product 생성자 검증 이동, 미사용 코드 정리 | [세션 문서](docs/ai-sessions/2026-05-12.md) |
+| Option 도메인 6단계 — TDD 진행 중 OptionCommandService 구조 문제 발견, Product를 애그리게이트 루트로 전환 | 도메인 분석·계획서 작성, OptionControllerTest TDD, 애그리게이트 루트 설계 변경 (OptionCommandService 삭제, Product.addOption/removeOption 추가), ADR 007 작성 | [세션 문서](docs/ai-sessions/2026-05-13.md) |
 
 ---
 

@@ -2,6 +2,8 @@ package gift.product;
 
 import gift.category.Category;
 import gift.category.CategoryQueryService;
+import gift.option.Option;
+import gift.option.OptionRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +45,16 @@ public class ProductCommandService {
 
     public void delete(Long id) {
         productRepository.deleteById(id);
+    }
+
+    public Option addOption(Long productId, OptionRequest request) {
+        Product product = productQueryService.findById(productId);
+        return product.addOption(request.name(), request.quantity());
+    }
+
+    public void removeOption(Long productId, Long optionId) {
+        Product product = productQueryService.findById(productId);
+        product.removeOption(optionId);
     }
 
     private Product save(ProductRequest request) {
