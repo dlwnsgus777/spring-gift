@@ -216,6 +216,7 @@ new Product(name, ...); // 내부에서 검증, 위반 시 예외
 | Option 도메인 6단계 — TDD 진행 중 OptionCommandService 구조 문제 발견, Product를 애그리게이트 루트로 전환 | 도메인 분석·계획서 작성, OptionControllerTest TDD, 애그리게이트 루트 설계 변경 (OptionCommandService 삭제, Product.addOption/removeOption 추가), ADR 007 작성 | [세션 문서](docs/ai-sessions/2026-05-13.md) |
 | Wish 도메인 7단계 — TDD 7사이클로 WishController Repository 의존 제거, UnauthorizedException·ForbiddenException 추가 | 도메인 분석·계획서 작성, WishQueryService/WishCommandService TDD, AuthService.extractMember 추가, WishController 교체, tdd-team 스킬 체크포인트 강화 | [세션 문서](docs/ai-sessions/2026-05-14.md) |
 | Order 도메인 8단계 — TDD 7사이클로 OrderController Repository 의존 제거, 트랜잭션 경계 증명, Pessimistic Lock 동시성 처리 | 도메인 분석·계획서 작성, OrderQueryService/OrderCommandService/NotifySendService TDD, FakeMessageClient 테스트 더블, findByIdWithLock SELECT FOR UPDATE 적용, ADR 008 작성 | [세션 문서](docs/ai-sessions/2026-05-14-2.md) |
+| 9단계 코드 정리 — support 패키지·Fixture 도입, notification 패키지 분리, 미사용 코드·주석 제거 | UUIDGenerator + 6개 Fixture 클래스 생성, 17개 테스트 파일 교체, gift.notification 패키지 신설, AuthenticationResolver 삭제, @Autowired·Javadoc·what 주석 제거 | [세션 문서](docs/ai-sessions/2026-05-14-3.md) |
 
 ---
 
