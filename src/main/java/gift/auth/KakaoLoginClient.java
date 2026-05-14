@@ -11,6 +11,11 @@ public class KakaoLoginClient {
     private final KakaoLoginProperties properties;
     private final RestClient restClient;
 
+    protected KakaoLoginClient() {
+        this.properties = null;
+        this.restClient = null;
+    }
+
     public KakaoLoginClient(KakaoLoginProperties properties, RestClient.Builder builder) {
         this.properties = properties;
         this.restClient = builder.build();

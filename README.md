@@ -109,7 +109,7 @@
 
 ---
 
-### 10단계: KakaoAuth 도메인
+### 10단계: KakaoAuth 도메인 — [구현 계획](docs/plan/task-step10-kakao-auth-domain.md)
 
 > Kakao OAuth2 콜백 로직 — auth 패키지 서비스 계층 완성
 
