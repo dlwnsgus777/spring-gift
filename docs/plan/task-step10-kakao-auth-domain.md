@@ -354,40 +354,40 @@ class KakaoAuthServiceTest extends AbstractIntegrationTest {
 
 ### 1단계 — FakeKakaoLoginClient 생성 및 통합 테스트 작성 (기존 동작 Green 고정)
 
-- [ ] `FakeKakaoLoginClient extends KakaoLoginClient` 생성 (test 패키지)
-- [ ] `KakaoAuthControllerTest` 작성 — test01 (302 리다이렉트)
-- [ ] `KakaoAuthControllerTest.test02` 작성 — callback 신규 회원 자동 생성 200
-- [ ] `KakaoAuthControllerTest.test03` 작성 — callback 기존 회원 로그인 200
-- [ ] `KakaoAuthControllerTest.test04` 작성 — code 파라미터 없음 400
-- [ ] 전체 테스트 Green 확인
+- [x] `FakeKakaoLoginClient extends KakaoLoginClient` 생성 (test 패키지)
+- [x] `KakaoAuthControllerTest` 작성 — test01 (302 리다이렉트)
+- [x] `KakaoAuthControllerTest.test02` 작성 — callback 신규 회원 자동 생성 200
+- [x] `KakaoAuthControllerTest.test03` 작성 — callback 기존 회원 로그인 200
+- [x] `KakaoAuthControllerTest.test04` 작성 — code 파라미터 없음 400
+- [x] 전체 테스트 Green 확인
 
 ### 2단계 — MemberQueryService / MemberCommandService 확장 (구조 변경)
 
-- [ ] `MemberQueryService.findByEmailOptional()` 추가
-- [ ] `MemberCommandService.createKakaoMember()` 추가
-- [ ] `MemberCommandService.updateKakaoAccessToken()` 추가
-- [ ] 기존 서비스 테스트 Green 확인
+- [x] `MemberQueryService.findByEmailOptional()` 추가
+- [x] `MemberCommandService.createKakaoMember()` 추가
+- [x] `MemberCommandService.updateKakaoAccessToken()` 추가
+- [x] 기존 서비스 테스트 Green 확인
 
 ### 3단계 — KakaoAuthService 추출 (구조 변경)
 
-- [ ] `KakaoAuthServiceTest` 작성 — test01, test02, test03 → **Red** 확인 (클래스 미존재)
-- [ ] `KakaoAuthService` 생성 — `callback()` 구현
-- [ ] `KakaoAuthServiceTest` **Green** 확인
-- [ ] `KakaoAuthController.callback()` → `kakaoAuthService.callback(code)` 위임
-- [ ] `KakaoAuthController`에서 `MemberRepository`, `JwtProvider` 의존 제거
-- [ ] `KakaoAuthControllerTest` 전체 **Green** 확인
+- [x] `KakaoAuthServiceTest` 작성 — test01, test02, test03 → **Red** 확인 (클래스 미존재)
+- [x] `KakaoAuthService` 생성 — `callback()` 구현
+- [x] `KakaoAuthServiceTest` **Green** 확인
+- [x] `KakaoAuthController.callback()` → `kakaoAuthService.callback(code)` 위임
+- [x] `KakaoAuthController`에서 `MemberRepository`, `JwtProvider` 의존 제거
+- [x] `KakaoAuthControllerTest` 전체 **Green** 확인
 
 ---
 
 ## 7. 인수 조건 (Acceptance Criteria)
 
-- [ ] `KakaoAuthController`에 `MemberRepository` 직접 의존이 없다
-- [ ] `KakaoAuthController`에 `JwtProvider` 직접 의존이 없다
-- [ ] `KakaoAuthController.callback()`이 `kakaoAuthService.callback(code)` 한 줄로 위임한다
-- [ ] `KakaoLoginClient`는 클래스 그대로 유지된다 — 인터페이스 전환 없음
-- [ ] `FakeKakaoLoginClient`가 테스트 패키지에만 존재한다
-- [ ] `KakaoAuthService`가 `MemberRepository`를 직접 참조하지 않는다 — `MemberQueryService`, `MemberCommandService` 경유
-- [ ] `/api/auth/kakao/login` → 302 리다이렉트 테스트가 Green이다
-- [ ] `/api/auth/kakao/callback` 신규 이메일 자동 생성 테스트가 Green이다
-- [ ] `/api/auth/kakao/callback` 기존 이메일 로그인 + kakao token 갱신 테스트가 Green이다
-- [ ] 전체 테스트 Green
+- [x] `KakaoAuthController`에 `MemberRepository` 직접 의존이 없다
+- [x] `KakaoAuthController`에 `JwtProvider` 직접 의존이 없다
+- [x] `KakaoAuthController.callback()`이 `kakaoAuthService.callback(code)` 한 줄로 위임한다
+- [x] `KakaoLoginClient`는 클래스 그대로 유지된다 — 인터페이스 전환 없음
+- [x] `FakeKakaoLoginClient`가 테스트 패키지에만 존재한다
+- [x] `KakaoAuthService`가 `MemberRepository`를 직접 참조하지 않는다 — `MemberQueryService`, `MemberCommandService` 경유
+- [x] `/api/auth/kakao/login` → 302 리다이렉트 테스트가 Green이다
+- [x] `/api/auth/kakao/callback` 신규 이메일 자동 생성 테스트가 Green이다
+- [x] `/api/auth/kakao/callback` 기존 이메일 로그인 + kakao token 갱신 테스트가 Green이다
+- [x] 전체 테스트 Green

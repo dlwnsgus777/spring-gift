@@ -113,8 +113,8 @@
 
 > Kakao OAuth2 콜백 로직 — auth 패키지 서비스 계층 완성
 
-- [ ] `KakaoAuthController` API 통합 테스트 작성 — `/api/auth/kakao/login` 리다이렉트 302, `/api/auth/kakao/callback` 흐름 테스트
-- [ ] `KakaoAuthService` 추출 — `callback()` 로직(토큰 교환 → 회원 조회/생성 → JWT 발급) 분리, Controller의 `MemberRepository` · `JwtProvider` 직접 의존 제거
+- [x] `KakaoAuthController` API 통합 테스트 작성 — `/api/auth/kakao/login` 리다이렉트 302, `/api/auth/kakao/callback` 흐름 테스트
+- [x] `KakaoAuthService` 추출 — `callback()` 로직(토큰 교환 → 회원 조회/생성 → JWT 발급) 분리, Controller의 `MemberRepository` · `JwtProvider` 직접 의존 제거
 
 ---
 
@@ -217,6 +217,7 @@ new Product(name, ...); // 내부에서 검증, 위반 시 예외
 | Wish 도메인 7단계 — TDD 7사이클로 WishController Repository 의존 제거, UnauthorizedException·ForbiddenException 추가 | 도메인 분석·계획서 작성, WishQueryService/WishCommandService TDD, AuthService.extractMember 추가, WishController 교체, tdd-team 스킬 체크포인트 강화 | [세션 문서](docs/ai-sessions/2026-05-14.md) |
 | Order 도메인 8단계 — TDD 7사이클로 OrderController Repository 의존 제거, 트랜잭션 경계 증명, Pessimistic Lock 동시성 처리 | 도메인 분석·계획서 작성, OrderQueryService/OrderCommandService/NotifySendService TDD, FakeMessageClient 테스트 더블, findByIdWithLock SELECT FOR UPDATE 적용, ADR 008 작성 | [세션 문서](docs/ai-sessions/2026-05-14-2.md) |
 | 9단계 코드 정리 — support 패키지·Fixture 도입, notification 패키지 분리, 미사용 코드·주석 제거 | UUIDGenerator + 6개 Fixture 클래스 생성, 17개 테스트 파일 교체, gift.notification 패키지 신설, AuthenticationResolver 삭제, @Autowired·Javadoc·what 주석 제거 | [세션 문서](docs/ai-sessions/2026-05-14-3.md) |
+| KakaoAuth 도메인 10단계 — 계획서 작성 + TDD 11사이클로 KakaoAuthService 추출, KakaoTokenResponse·KakaoUserResponse top-level 분리 | 계획서 작성(FakeKakaoLoginClient 상속 방식), KakaoAuthControllerTest/KakaoAuthServiceTest TDD, MemberQueryService·MemberCommandService 확장, Controller 리팩터링 | [세션 문서](docs/ai-sessions/2026-05-14-4.md) |
 
 ---
 
