@@ -79,7 +79,7 @@
 
 ---
 
-### 8단계: Order 도메인
+### 8단계: Order 도메인 — [구현 계획](docs/plan/task-step8-order-domain.md)
 
 > 가장 복잡 — 5개 Repository, 트랜잭션, 누락 기능, 도메인 책임
 
