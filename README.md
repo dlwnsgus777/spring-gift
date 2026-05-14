@@ -83,14 +83,15 @@
 
 > 가장 복잡 — 5개 Repository, 트랜잭션, 누락 기능, 도메인 책임
 
-- [ ] `OrderController` API 통합 테스트 작성
-- [ ] `OrderController` 스타일 정리 — 흐름 주석 블록 제거 (`// auth check`, `// validate option` 등 7곳), `var` → 타입 명시, `orElse(null)` → Optional 패턴
-- [ ] `OrderService` 추출 — Controller에서 5개 Repository 의존성 제거
-- [ ] `OrderService.createOrder()` `@Transactional` 적용 — 재고 차감 + 포인트 차감 + 주문 저장을 단일 트랜잭션으로
-- [ ] 트랜잭션 경계 검증: 재고 차감 후 포인트 부족 예외 발생 시 재고가 롤백되는지 테스트로 증명
-- [ ] 위시리스트 자동 삭제 구현 — 주문한 상품이 위시리스트에 있으면 자동 삭제 (`WishRepository.findByMemberIdAndProductId()` 활용)
-- [ ] 위시리스트 자동 삭제 전후 동작 차이를 테스트로 증명 (주문 후 위시에서 사라짐)
-- [ ] 포인트 충분 여부 확인 — `Member.deductPoint()` 내부 예외로 처리
+- [x] `OrderController` API 통합 테스트 작성
+- [x] `OrderController` 스타일 정리 — 흐름 주석 블록 제거 (`// auth check`, `// validate option` 등 7곳), `var` → 타입 명시, `orElse(null)` → Optional 패턴
+- [x] `OrderService` 추출 — `OrderQueryService` / `OrderCommandService` / `NotifySendService` 분리, Controller에서 Repository 의존성 제거
+- [x] `OrderCommandService.createOrder()` `@Transactional` 적용 — 재고 차감 + 포인트 차감 + 주문 저장 + 위시 삭제를 단일 트랜잭션으로
+- [x] 트랜잭션 경계 검증: 재고 차감 후 포인트 부족 예외 발생 시 재고가 롤백되는지 테스트로 증명 (test04)
+- [x] 위시리스트 자동 삭제 구현 — 주문한 상품이 위시리스트에 있으면 자동 삭제 (`WishCommandService.deleteByMemberIdAndProductId()`)
+- [x] 위시리스트 자동 삭제 전후 동작 차이를 테스트로 증명 (주문 후 위시에서 사라짐)
+- [x] 포인트 충분 여부 확인 — `Member.deductPoint()` 내부 예외로 처리
+- [x] 재고 동시성 처리 — Pessimistic Lock (`SELECT FOR UPDATE`) 적용, 동시 주문 테스트로 증명 (test06)
 
 ---
 
@@ -199,6 +200,7 @@ new Product(name, ...); // 내부에서 검증, 위반 시 예외
 | Product 도메인 5단계 — Query/Command 서비스 분리, 생성자 검증 이동, Admin 카카오 허용 방식 결정 | 도메인 분석·계획서 작성, ProductController/AdminProductController 통합 테스트, ProductQueryService/ProductCommandService TDD, Product 생성자 검증 이동, 미사용 코드 정리 | [세션 문서](docs/ai-sessions/2026-05-12.md) |
 | Option 도메인 6단계 — TDD 진행 중 OptionCommandService 구조 문제 발견, Product를 애그리게이트 루트로 전환 | 도메인 분석·계획서 작성, OptionControllerTest TDD, 애그리게이트 루트 설계 변경 (OptionCommandService 삭제, Product.addOption/removeOption 추가), ADR 007 작성 | [세션 문서](docs/ai-sessions/2026-05-13.md) |
 | Wish 도메인 7단계 — TDD 7사이클로 WishController Repository 의존 제거, UnauthorizedException·ForbiddenException 추가 | 도메인 분석·계획서 작성, WishQueryService/WishCommandService TDD, AuthService.extractMember 추가, WishController 교체, tdd-team 스킬 체크포인트 강화 | [세션 문서](docs/ai-sessions/2026-05-14.md) |
+| Order 도메인 8단계 — TDD 7사이클로 OrderController Repository 의존 제거, 트랜잭션 경계 증명, Pessimistic Lock 동시성 처리 | 도메인 분석·계획서 작성, OrderQueryService/OrderCommandService/NotifySendService TDD, FakeMessageClient 테스트 더블, findByIdWithLock SELECT FOR UPDATE 적용, ADR 008 작성 | [세션 문서](docs/ai-sessions/2026-05-14-2.md) |
 
 ---
 

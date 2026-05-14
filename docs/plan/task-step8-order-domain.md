@@ -410,67 +410,67 @@ class OrderCommandServiceTest extends AbstractIntegrationTest {
 
 ### 1단계 — 통합 테스트 작성 (기존 동작 Green 고정)
 
-- [ ] `OrderControllerTest` 작성 — test01~test07 (위시 자동 삭제 test08 제외)
-- [ ] 전체 테스트 Green 확인
+- [x] `OrderControllerTest` 작성 — test01~test07 (위시 자동 삭제 test08 제외)
+- [x] 전체 테스트 Green 확인
 
 ### 2단계 — 스타일 정리 (구조 변경 없음, 동작 동일)
 
-- [ ] `OrderController` 흐름 주석 7곳 제거 (`// auth check`, `// validate option` 등)
-- [ ] `var` → 명시적 타입 변환
-- [ ] `authenticationResolver.extractMember()` → `authService.extractMember()` 전환, null 체크 분기 제거
-- [ ] `optionRepository.findById(...).orElse(null)` → `.orElseThrow()` 변환, null 체크 분기 제거
-- [ ] 테스트 Green 확인 (응답 코드 동일)
+- [x] `OrderController` 흐름 주석 7곳 제거 (`// auth check`, `// validate option` 등)
+- [x] `var` → 명시적 타입 변환
+- [x] `authenticationResolver.extractMember()` → `authService.extractMember()` 전환, null 체크 분기 제거
+- [x] `optionRepository.findById(...).orElse(null)` → `.orElseThrow()` 변환, null 체크 분기 제거
+- [x] 테스트 Green 확인 (응답 코드 동일)
 
 ### 3단계 — OrderQueryService 추출 (구조 변경)
 
-- [ ] `OrderQueryService` 생성 — `findByMemberId(memberId, pageable)` 구현
-- [ ] `OrderQueryServiceTest` 작성 — test01
-- [ ] `OrderController.getOrders()` → `orderQueryService.findByMemberId()` 위임
-- [ ] 컨트롤러 테스트 여전히 Green 확인
+- [x] `OrderQueryService` 생성 — `findByMemberId(memberId, pageable)` 구현
+- [x] `OrderQueryServiceTest` 작성 — test01
+- [x] `OrderController.getOrders()` → `orderQueryService.findByMemberId()` 위임
+- [x] 컨트롤러 테스트 여전히 Green 확인
 
 ### 4단계 — OrderCommandService 추출 (구조 변경)
 
-- [ ] `OrderCommandService` 생성 — `createOrder()` 구현 (카카오 알림 포함, `@Transactional` 아직 없음)
-- [ ] `OrderCommandServiceTest` 작성 — test01, test02, test03
-- [ ] `OrderController.createOrder()` → `orderCommandService.createOrder()` 위임
-- [ ] `OrderController`에서 불필요한 Repository 의존성 5개 → `AuthService`, `OrderQueryService`, `OrderCommandService` 3개로 축소
-- [ ] 컨트롤러 테스트 여전히 Green 확인
+- [x] `OrderCommandService` 생성 — `createOrder()` 구현 (카카오 알림 포함, `@Transactional` 아직 없음)
+- [x] `OrderCommandServiceTest` 작성 — test01, test02, test03
+- [x] `OrderController.createOrder()` → `orderCommandService.createOrder()` 위임
+- [x] `OrderController`에서 불필요한 Repository 의존성 5개 → `AuthService`, `OrderQueryService`, `OrderCommandService`, `NotifySendService` 4개로 축소
+- [x] 컨트롤러 테스트 여전히 Green 확인
 
 ### 5단계 — 트랜잭션 경계 확립 (동작 변경 — 버그 수정)
 
-- [ ] `OrderCommandServiceTest.test04` 작성 — "포인트 부족 시 재고가 롤백된다" → **Red** 확인
-- [ ] `OrderCommandService.createOrder()`에 `@Transactional` 적용
-- [ ] test04 **Green** 확인
+- [x] `OrderCommandServiceTest.test04` 작성 — "포인트 부족 시 재고가 롤백된다" → **Red** 확인
+- [x] `OrderCommandService.createOrder()`에 `@Transactional` 적용
+- [x] test04 **Green** 확인
 
 ### 6단계 — 위시리스트 자동 삭제 (새 동작 추가)
 
-- [ ] `OrderCommandServiceTest.test05` 작성 — "주문 후 위시에 있던 상품이 삭제된다" → **Red** 확인
-- [ ] `WishCommandServiceTest`에 `deleteByMemberIdAndProductId` 테스트 추가 (있으면 삭제, 없으면 무시)
-- [ ] `WishCommandService.deleteByMemberIdAndProductId()` 구현 → WishCommandServiceTest **Green**
-- [ ] `OrderCommandService.createOrder()`에서 `wishCommandService.deleteByMemberIdAndProductId()` 호출
-- [ ] test05 **Green** 확인
-- [ ] `OrderControllerTest.test08` 작성 후 **Green** 확인
+- [x] `OrderCommandServiceTest.test05` 작성 — "주문 후 위시에 있던 상품이 삭제된다" → **Red** 확인
+- [x] `WishCommandServiceTest`에 `deleteByMemberIdAndProductId` 테스트 추가 (있으면 삭제, 없으면 무시)
+- [x] `WishCommandService.deleteByMemberIdAndProductId()` 구현 → WishCommandServiceTest **Green**
+- [x] `OrderCommandService.createOrder()`에서 `wishCommandService.deleteByMemberIdAndProductId()` 호출
+- [x] test05 **Green** 확인
+- [x] `OrderControllerTest.test08` 작성 후 **Green** 확인
 
 ### 7단계 — 재고 동시성 처리 (Pessimistic Lock)
 
-- [ ] `OptionRepository`에 `findByIdWithLock()` 추가 (`@Lock(PESSIMISTIC_WRITE)` + `@Query`)
-- [ ] `OrderCommandService.createOrder()`에서 `findById` → `findByIdWithLock` 교체
-- [ ] `OrderCommandServiceTest`에 동시성 테스트 추가 — 두 스레드가 동시에 같은 옵션을 주문할 때 재고가 정확히 차감됨을 검증
-- [ ] 전체 테스트 Green 확인
+- [x] `OptionRepository`에 `findByIdWithLock()` 추가 (`@Lock(PESSIMISTIC_WRITE)` + `@Query`)
+- [x] `OrderCommandService.createOrder()`에서 `findById` → `findByIdWithLock` 교체
+- [x] `OrderCommandServiceTest`에 동시성 테스트 추가 — 두 스레드가 동시에 같은 옵션을 주문할 때 재고가 정확히 차감됨을 검증 (test06)
+- [x] 전체 테스트 Green 확인
 
 ---
 
 ## 7. 인수 조건 (Acceptance Criteria)
 
-- [ ] `OrderController`에 Repository 직접 의존이 없다 — `AuthService`, `OrderQueryService`, `OrderCommandService`만 주입
-- [ ] `OrderController`에 흐름 주석(`// auth check` 등)이 없다
-- [ ] `OrderController`에 null 체크 분기가 없다
-- [ ] `OrderCommandService`에 `@Transactional`이 적용되어 있다
-- [ ] 재고 차감 후 포인트 부족 예외 발생 시 재고가 롤백됨을 테스트가 증명한다
-- [ ] 주문 완료 후 위시리스트에 있던 상품이 자동으로 삭제됨을 테스트가 증명한다
-- [ ] 주문한 상품이 위시에 없어도 주문이 정상 완료된다
-- [ ] 카카오 알림 발송 실패 시 주문 결과에 영향이 없다
-- [ ] 카카오 알림은 트랜잭션 커밋 후 실행된다 (`createOrder()` 트랜잭션 범위 외부)
-- [ ] 동시에 같은 옵션을 주문해도 재고가 정확히 차감됨을 테스트가 증명한다 (Pessimistic Lock)
-- [ ] `OptionRepository.findByIdWithLock()`이 `SELECT FOR UPDATE`로 실행된다
-- [ ] 전체 테스트 Green
+- [x] `OrderController`에 Repository 직접 의존이 없다 — `AuthService`, `OrderQueryService`, `OrderCommandService`, `NotifySendService` 주입
+- [x] `OrderController`에 흐름 주석(`// auth check` 등)이 없다
+- [x] `OrderController`에 null 체크 분기가 없다
+- [x] `OrderCommandService`에 `@Transactional`이 적용되어 있다
+- [x] 재고 차감 후 포인트 부족 예외 발생 시 재고가 롤백됨을 테스트가 증명한다 (OrderCommandServiceTest.test04)
+- [x] 주문 완료 후 위시리스트에 있던 상품이 자동으로 삭제됨을 테스트가 증명한다 (OrderCommandServiceTest.test05)
+- [x] 주문한 상품이 위시에 없어도 주문이 정상 완료된다 (WishCommandServiceTest)
+- [x] 카카오 알림 발송 실패 시 주문 결과에 영향이 없다 (NotifySendService try-catch ignore)
+- [x] 카카오 알림은 트랜잭션 커밋 후 실행된다 (`notifySendService.sendIfPossible()`을 컨트롤러에서 `createOrder()` 호출 후 실행)
+- [x] 동시에 같은 옵션을 주문해도 재고가 정확히 차감됨을 테스트가 증명한다 (OrderCommandServiceTest.test06)
+- [x] `OptionRepository.findByIdWithLock()`이 `SELECT FOR UPDATE`로 실행된다
+- [x] 전체 테스트 Green
