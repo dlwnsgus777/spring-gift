@@ -1,6 +1,7 @@
-package gift.order;
+package gift.notification;
 
 import gift.member.Member;
+import gift.order.Order;
 import org.springframework.stereotype.Service;
 
 @Service

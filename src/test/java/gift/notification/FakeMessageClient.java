@@ -1,5 +1,6 @@
-package gift.order;
+package gift.notification;
 
+import gift.order.Order;
 import gift.product.Product;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;

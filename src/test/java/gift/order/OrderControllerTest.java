@@ -20,6 +20,7 @@ import gift.support.CategoryFixture;
 import gift.support.MemberFixture;
 import gift.support.OptionFixture;
 import gift.support.ProductFixture;
+import gift.notification.FakeMessageClient;
 import gift.support.WishFixture;
 import gift.wish.WishRepository;
 import org.junit.jupiter.api.DisplayName;
