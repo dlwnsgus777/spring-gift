@@ -64,6 +64,13 @@ Spawn agent with Red prompt + environment context + task description. Key inputs
 - **Output**: test file path, method name, failure message
 - If test already passes → skip GREEN. If build fails → fix stubs, re-verify.
 
+> ⚠️ **A compilation error is NOT Red.**
+> Red requires the test to actually run and fail. Two valid Red states:
+> - **New class/method**: stub exists with `throw new UnsupportedOperationException("Not implemented yet")` — test runs and throws this exception → Red confirmed.
+> - **Existing test modified/added**: test runs and the assertion fails → Red confirmed.
+>
+> If the build fails, fix stubs until compilation passes, then verify the test failure.
+
 ### GREEN Phase
 
 Spawn agent with Green prompt + RED's failure output. Key inputs/outputs:
@@ -73,7 +80,11 @@ Spawn agent with Green prompt + RED's failure output. Key inputs/outputs:
 
 ### REFACTOR Phase
 
-**조건부 실행**: GREEN 단계에서 코드가 이미 깔끔하다고 판단되면 이 페이즈를 건너뜁니다. 단순한 행동(단순 연산, 단순 반환 등)은 리팩터링이 거의 불필요합니다.
+**Conditional execution**: Skip this phase if the GREEN implementation is already clean. Simple behaviors (basic arithmetic, simple returns, etc.) rarely need refactoring.
+
+Refactoring techniques must follow Martin Fowler's catalog (*Refactoring: Improving the Design of Existing Code*). Apply named techniques (e.g., Extract Method, Rename Variable, Replace Conditional with Polymorphism) rather than ad-hoc cleanup.
+
+Refactoring scope includes **both production code and test code**. Test code is not exempt — improve test readability, extract helper methods, and clean up assertion style as needed.
 
 Spawn agent with Refactor prompt + current source/test files. Key inputs/outputs:
 - **Input**: summary of RED+GREEN changes
@@ -112,6 +123,8 @@ Tests: {N} passed, 0 failed
 If cmux is available: `cmux notify` on cycle complete (see `references/cmux-integration.md`).
 
 ## Key Principles
+
+**Definition of Red** — Red means the build passes, the test runs, and the assertion fails. A compilation error is NOT Red. If the build fails, fix stubs until compilation passes, then verify the test failure.
 
 **Strict phase separation** — RED writes tests only, GREEN writes production code only, REFACTOR changes no behavior. This ensures tests genuinely validate behavior rather than passing alongside code written at the same time.
 
