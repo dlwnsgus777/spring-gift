@@ -37,7 +37,7 @@ public class OrderCommandService {
     }
 
     private Option subtractStock(Long optionId, int quantity) {
-        Option option = optionRepository.findById(optionId).orElseThrow();
+        Option option = optionRepository.findByIdWithLock(optionId).orElseThrow();
         option.subtractQuantity(quantity);
         return option;
     }
