@@ -17,6 +17,8 @@ import gift.option.Option;
 import gift.option.OptionRepository;
 import gift.product.Product;
 import gift.product.ProductRepository;
+import gift.wish.Wish;
+import gift.wish.WishRepository;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -49,6 +51,9 @@ class OrderControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     private FakeMessageClient fakeKakaoMessageClient;
+
+    @Autowired
+    private WishRepository wishRepository;
 
     @Test
     @DisplayName("포인트와 재고가 충분하면 주문이 생성되고 201을 반환한다")
@@ -184,6 +189,32 @@ class OrderControllerTest extends AbstractIntegrationTest {
                 .header("Authorization", token))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content").isArray());
+    }
+
+    @Test
+    @DisplayName("주문 완료 후 위시리스트에 있던 상품이 자동으로 삭제된다")
+    void test08() throws Exception {
+        // arrange
+        Option option = savedOption(1000, 10);
+        String email = "order-test08-" + uuid() + "@test.com";
+        Member member = new Member(email, "pass");
+        member.chargePoint(10000);
+        memberRepository.save(member);
+        String token = bearerToken(member.getEmail());
+        wishRepository.save(new Wish(member.getId(), option.getProduct()));
+
+        OrderRequest request = new OrderRequest(option.getId(), 1, null);
+
+        // act
+        mockMvc.perform(post("/api/orders")
+                .header("Authorization", token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isCreated());
+
+        // assert
+        assertThat(wishRepository.findByMemberIdAndProductId(member.getId(), option.getProduct().getId()))
+            .isEmpty();
     }
 
     private Option savedOption(int price, int stock) {

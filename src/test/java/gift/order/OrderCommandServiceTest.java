@@ -12,6 +12,8 @@ import gift.option.Option;
 import gift.option.OptionRepository;
 import gift.product.Product;
 import gift.product.ProductRepository;
+import gift.wish.Wish;
+import gift.wish.WishRepository;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,6 +41,9 @@ class OrderCommandServiceTest extends AbstractIntegrationTest {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private WishRepository wishRepository;
 
     @Test
     @DisplayName("포인트와 재고가 충분하면 주문이 생성되고 재고·포인트가 차감된다")
@@ -105,6 +110,24 @@ class OrderCommandServiceTest extends AbstractIntegrationTest {
         // assert
         Option fetchedOption = optionRepository.findById(option.getId()).get();
         assertThat(fetchedOption.getQuantity()).isEqualTo(5);
+    }
+
+    @Test
+    @DisplayName("주문 완료 후 위시리스트에 있던 상품이 자동으로 삭제된다")
+    void test05() {
+        // arrange
+        Option option = savedOption("주문위시삭제_" + uuid(), 1000, 10);
+        Product product = option.getProduct();
+        Member member = memberRepository.save(new Member("order_wish_del_" + uuid() + "@test.com", "pass"));
+        member.chargePoint(10000);
+        memberRepository.save(member);
+        wishRepository.save(new Wish(member.getId(), product));
+
+        // act
+        orderCommandService.createOrder(member.getId(), option.getId(), 1, null);
+
+        // assert
+        assertThat(wishRepository.findByMemberIdAndProductId(member.getId(), product.getId())).isEmpty();
     }
 
     private Option savedOption(String productName, int price, int quantity) {

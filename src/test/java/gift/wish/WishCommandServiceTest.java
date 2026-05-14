@@ -1,6 +1,7 @@
 package gift.wish;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import gift.AbstractIntegrationTest;
@@ -110,6 +111,34 @@ class WishCommandServiceTest extends AbstractIntegrationTest {
         // act & assert
         assertThatThrownBy(() -> wishCommandService.removeWish(member.getId(), nonExistentWishId))
             .isInstanceOf(NoSuchElementException.class);
+    }
+
+    @Test
+    @DisplayName("위시에 있는 상품을 memberId+productId로 삭제하면 위시가 제거된다")
+    void test06() {
+        // arrange
+        Member member = memberRepository.save(new Member("wish_cmd_byprod_" + uuid() + "@test.com", "pass"));
+        Product product = savedProduct();
+        wishCommandService.addWish(member.getId(), product.getId());
+
+        // act
+        wishCommandService.deleteByMemberIdAndProductId(member.getId(), product.getId());
+
+        // assert
+        assertThat(wishRepository.findByMemberIdAndProductId(member.getId(), product.getId())).isEmpty();
+    }
+
+    @Test
+    @DisplayName("위시에 없는 상품을 memberId+productId로 삭제해도 예외가 발생하지 않는다")
+    void test07() {
+        // arrange
+        Member member = memberRepository.save(new Member("wish_cmd_notwish_" + uuid() + "@test.com", "pass"));
+        Product product = savedProduct();
+
+        // act & assert
+        assertThatNoException().isThrownBy(
+            () -> wishCommandService.deleteByMemberIdAndProductId(member.getId(), product.getId())
+        );
     }
 
     private Product savedProduct() {

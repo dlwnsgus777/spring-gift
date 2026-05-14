@@ -32,4 +32,9 @@ public class WishCommandService {
         }
         wishRepository.delete(wish);
     }
+
+    public void deleteByMemberIdAndProductId(Long memberId, Long productId) {
+        wishRepository.findByMemberIdAndProductId(memberId, productId)
+            .ifPresent(wishRepository::delete);
+    }
 }
