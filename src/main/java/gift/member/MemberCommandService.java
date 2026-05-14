@@ -39,4 +39,10 @@ public class MemberCommandService {
     public Member createKakaoMember(String email) {
         return memberRepository.save(new Member(email));
     }
+
+    public Member updateKakaoAccessToken(Long id, String kakaoAccessToken) {
+        Member member = memberRepository.findById(id).orElseThrow();
+        member.updateKakaoAccessToken(kakaoAccessToken);
+        return member;
+    }
 }

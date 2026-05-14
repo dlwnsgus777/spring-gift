@@ -119,4 +119,19 @@ class MemberCommandServiceTest extends AbstractIntegrationTest {
         assertThat(result.getPassword()).isNull();
         assertThat(memberRepository.findById(result.getId())).isPresent();
     }
+
+    @Test
+    @DisplayName("updateKakaoAccessToken() 호출 후 DB에서 재조회한 Member의 kakaoAccessToken이 갱신된 값과 일치한다")
+    void test09() {
+        // arrange
+        Member saved = memberRepository.save(MemberFixture.builder().build());
+        String newToken = "kakao_token_" + java.util.UUID.randomUUID();
+
+        // act
+        memberCommandService.updateKakaoAccessToken(saved.getId(), newToken);
+
+        // assert
+        Member found = memberRepository.findById(saved.getId()).orElseThrow();
+        assertThat(found.getKakaoAccessToken()).isEqualTo(newToken);
+    }
 }
