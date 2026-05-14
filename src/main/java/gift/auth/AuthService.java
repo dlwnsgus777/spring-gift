@@ -1,5 +1,6 @@
 package gift.auth;
 
+import gift.common.UnauthorizedException;
 import gift.member.Member;
 import gift.member.MemberCommandService;
 import gift.member.MemberQueryService;
@@ -30,6 +31,17 @@ public class AuthService {
     public TokenResponse register(MemberRequest request) {
         Member member = memberCommandService.create(request.email(), request.password());
         return new TokenResponse(jwtProvider.createToken(member.getEmail()));
+    }
+
+    @Transactional(readOnly = true)
+    public Member extractMember(String authorization) {
+        try {
+            String token = authorization.replace("Bearer ", "");
+            String email = jwtProvider.getEmail(token);
+            return memberQueryService.findByEmail(email);
+        } catch (Exception e) {
+            throw new UnauthorizedException("Invalid or missing token.");
+        }
     }
 
     public TokenResponse login(MemberRequest request) {

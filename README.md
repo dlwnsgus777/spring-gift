@@ -69,13 +69,13 @@
 
 ---
 
-### 7단계: Wish 도메인
+### 7단계: Wish 도메인 — [구현 계획](docs/plan/task-step7-wish-domain.md)
 
 > 인증 + 중복 체크 + 2개 Repository
 
-- [ ] `WishController` API 통합 테스트 작성
-- [ ] `WishController` 스타일 정리 — `// check auth`, `// check product`, `// check duplicate` 흐름 주석 제거, `var` → 타입 명시, `orElse(null)` → Optional 패턴
-- [ ] `WishService` 추출 — Controller에서 Repository 의존성 분리
+- [x] `WishController` API 통합 테스트 작성
+- [x] `WishController` 스타일 정리 — `// check auth`, `// check product`, `// check duplicate` 흐름 주석 제거, `var` → 타입 명시, `orElse(null)` → Optional 패턴
+- [x] `WishService` 추출 — Controller에서 Repository 의존성 분리 (`WishQueryService` / `WishCommandService` 분리, `AuthService.extractMember()` 추가)
 
 ---
 
@@ -198,6 +198,7 @@ new Product(name, ...); // 내부에서 검증, 위반 시 예외
 | Point 도메인 4단계 — Point @Embeddable VO TDD 구현, PointCommandService 시도 후 설계 검토로 제거 결정 | README 순서 재편성, 도메인 분석·계획서 작성, Point VO TDD, PointCommandService 설계 문제 발견·철회, ADR 006 작성 | [세션 문서](docs/ai-sessions/2026-05-11-2.md) |
 | Product 도메인 5단계 — Query/Command 서비스 분리, 생성자 검증 이동, Admin 카카오 허용 방식 결정 | 도메인 분석·계획서 작성, ProductController/AdminProductController 통합 테스트, ProductQueryService/ProductCommandService TDD, Product 생성자 검증 이동, 미사용 코드 정리 | [세션 문서](docs/ai-sessions/2026-05-12.md) |
 | Option 도메인 6단계 — TDD 진행 중 OptionCommandService 구조 문제 발견, Product를 애그리게이트 루트로 전환 | 도메인 분석·계획서 작성, OptionControllerTest TDD, 애그리게이트 루트 설계 변경 (OptionCommandService 삭제, Product.addOption/removeOption 추가), ADR 007 작성 | [세션 문서](docs/ai-sessions/2026-05-13.md) |
+| Wish 도메인 7단계 — TDD 7사이클로 WishController Repository 의존 제거, UnauthorizedException·ForbiddenException 추가 | 도메인 분석·계획서 작성, WishQueryService/WishCommandService TDD, AuthService.extractMember 추가, WishController 교체, tdd-team 스킬 체크포인트 강화 | [세션 문서](docs/ai-sessions/2026-05-14.md) |
 
 ---
 
@@ -206,8 +207,8 @@ new Product(name, ...); // 내부에서 검증, 위반 시 예외
 | 항목 | 현재 상태 |
 |------|-----------|
 | 테스트 환경 | Testcontainers MySQL 컨테이너 + Flyway 마이그레이션 검증 완료 |
-| Service 계층 | Category / Member / Product 완료. Option·Wish·Order는 Controller가 Repository 직접 사용 |
-| 트랜잭션 | Category·Member·Auth·Product 서비스에 `@Transactional` 적용 완료. 나머지 도메인 미적용 |
-| 예외 처리 | `GlobalExceptionHandler`로 일원화 (`NoSuchElementException` → 404, `IllegalArgumentException` → 400) |
+| Service 계층 | Category / Member / Product / Wish 완료. Order는 Controller가 Repository 직접 사용 |
+| 트랜잭션 | Category·Member·Auth·Product·Wish 서비스에 `@Transactional` 적용 완료. Order 미적용 |
+| 예외 처리 | `GlobalExceptionHandler`로 일원화 (`NoSuchElementException` → 404, `IllegalArgumentException` → 400, `UnauthorizedException` → 401, `ForbiddenException` → 403) |
 | 위시리스트 자동 삭제 | 미구현 (Order 흐름 주석에 의도만 존재) |
 | 도메인 검증 | Product 생성자로 이동 완료. `OptionNameValidator`는 외부 유틸 클래스에 위치 |
