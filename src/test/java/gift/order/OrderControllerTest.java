@@ -1,5 +1,6 @@
 package gift.order;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -46,6 +47,9 @@ class OrderControllerTest extends AbstractIntegrationTest {
     @Autowired
     private MemberRepository memberRepository;
 
+    @Autowired
+    private FakeMessageClient fakeKakaoMessageClient;
+
     @Test
     @DisplayName("포인트와 재고가 충분하면 주문이 생성되고 201을 반환한다")
     void test01() throws Exception {
@@ -55,6 +59,7 @@ class OrderControllerTest extends AbstractIntegrationTest {
 
         Member member = new Member(email, "password");
         member.chargePoint(1000); // price(1000) * quantity(1) = 1000
+        member.updateKakaoAccessToken("test-token");
         memberRepository.save(member);
 
         String token = bearerToken(email);
@@ -69,6 +74,9 @@ class OrderControllerTest extends AbstractIntegrationTest {
             .andExpect(jsonPath("$.id").exists())
             .andExpect(jsonPath("$.optionId").value(option.getId()))
             .andExpect(jsonPath("$.quantity").value(1));
+
+        assertThat(fakeKakaoMessageClient.getSendCount()).isEqualTo(1);
+        fakeKakaoMessageClient.reset();
     }
 
     @Test
