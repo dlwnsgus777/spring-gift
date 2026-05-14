@@ -2,9 +2,6 @@ package gift.order;
 
 import gift.auth.AuthService;
 import gift.member.Member;
-import gift.member.MemberRepository;
-import gift.option.Option;
-import gift.option.OptionRepository;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,24 +18,18 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
-    private final OrderRepository orderRepository;
-    private final OptionRepository optionRepository;
-    private final MemberRepository memberRepository;
     private final AuthService authService;
-    private final KakaoMessageClient kakaoMessageClient;
+    private final OrderQueryService orderQueryService;
+    private final OrderCommandService orderCommandService;
 
     public OrderController(
-        OrderRepository orderRepository,
-        OptionRepository optionRepository,
-        MemberRepository memberRepository,
         AuthService authService,
-        KakaoMessageClient kakaoMessageClient
+        OrderQueryService orderQueryService,
+        OrderCommandService orderCommandService
     ) {
-        this.orderRepository = orderRepository;
-        this.optionRepository = optionRepository;
-        this.memberRepository = memberRepository;
         this.authService = authService;
-        this.kakaoMessageClient = kakaoMessageClient;
+        this.orderQueryService = orderQueryService;
+        this.orderCommandService = orderCommandService;
     }
 
     @GetMapping
@@ -47,7 +38,7 @@ public class OrderController {
         Pageable pageable
     ) {
         Member member = authService.extractMember(authorization);
-        Page<OrderResponse> orders = orderRepository.findByMemberId(member.getId(), pageable).map(OrderResponse::from);
+        Page<OrderResponse> orders = orderQueryService.findByMemberId(member.getId(), pageable).map(OrderResponse::from);
         return ResponseEntity.ok(orders);
     }
 
@@ -57,31 +48,9 @@ public class OrderController {
         @Valid @RequestBody OrderRequest request
     ) {
         Member member = authService.extractMember(authorization);
-
-        Option option = optionRepository.findById(request.optionId()).orElseThrow();
-
-        option.subtractQuantity(request.quantity());
-        optionRepository.save(option);
-
-        int price = option.getProduct().getPrice() * request.quantity();
-        member.deductPoint(price);
-        memberRepository.save(member);
-
-        Order saved = orderRepository.save(new Order(option, member.getId(), request.quantity(), request.message()));
-
-        sendKakaoMessageIfPossible(member, saved, option);
-        return ResponseEntity.created(URI.create("/api/orders/" + saved.getId()))
-            .body(OrderResponse.from(saved));
-    }
-
-    private void sendKakaoMessageIfPossible(Member member, Order order, Option option) {
-        if (member.getKakaoAccessToken() == null) {
-            return;
-        }
-        try {
-            var product = option.getProduct();
-            kakaoMessageClient.sendToMe(member.getKakaoAccessToken(), order, product);
-        } catch (Exception ignored) {
-        }
+        Order order = orderCommandService.createOrder(member.getId(), request.optionId(), request.quantity(), request.message());
+        orderCommandService.notifyKakaoIfPossible(member, order);
+        return ResponseEntity.created(URI.create("/api/orders/" + order.getId()))
+            .body(OrderResponse.from(order));
     }
 }
