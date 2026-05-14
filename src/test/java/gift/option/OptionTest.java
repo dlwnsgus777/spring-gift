@@ -1,20 +1,19 @@
 package gift.option;
 
-import gift.category.Category;
-import gift.product.Product;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import gift.category.Category;
+import gift.product.Product;
+import gift.support.CategoryFixture;
+import gift.support.ProductFixture;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
 class OptionTest {
 
-    private static final Category DUMMY_CATEGORY =
-        new Category("테스트", "#FFFFFF", "http://img.com", null);
-
-    private static final Product DUMMY_PRODUCT =
-        new Product("유효한상품", 1000, "http://img.com", DUMMY_CATEGORY);
+    private static final Category DUMMY_CATEGORY = CategoryFixture.builder().name("테스트").build();
+    private static final Product DUMMY_PRODUCT = ProductFixture.builder(DUMMY_CATEGORY).name("유효한상품").build();
 
     @Test
     @DisplayName("유효한 이름으로 Option을 생성한다")
@@ -69,5 +68,4 @@ class OptionTest {
         assertThatThrownBy(() -> new Option(DUMMY_PRODUCT, blankName, 10))
             .isInstanceOf(IllegalArgumentException.class);
     }
-
 }

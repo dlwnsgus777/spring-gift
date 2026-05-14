@@ -1,5 +1,6 @@
 package gift.order;
 
+import static gift.support.UUIDGenerator.uuid;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -9,17 +10,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.AbstractIntegrationTest;
 import gift.auth.JwtProvider;
-import gift.category.Category;
 import gift.category.CategoryRepository;
 import gift.member.Member;
 import gift.member.MemberRepository;
 import gift.option.Option;
 import gift.option.OptionRepository;
-import gift.product.Product;
 import gift.product.ProductRepository;
-import gift.wish.Wish;
+import gift.support.CategoryFixture;
+import gift.support.MemberFixture;
+import gift.support.OptionFixture;
+import gift.support.ProductFixture;
+import gift.support.WishFixture;
 import gift.wish.WishRepository;
-import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +64,7 @@ class OrderControllerTest extends AbstractIntegrationTest {
         String email = "order-test-" + uuid() + "@example.com";
         Option option = savedOption(1000, 10);
 
-        Member member = new Member(email, "password");
+        Member member = MemberFixture.builder().email(email).build();
         member.chargePoint(1000); // price(1000) * quantity(1) = 1000
         member.updateKakaoAccessToken("test-token");
         memberRepository.save(member);
@@ -117,7 +119,7 @@ class OrderControllerTest extends AbstractIntegrationTest {
         // arrange
         String email = "order-test04-" + uuid() + "@example.com";
 
-        Member member = new Member(email, "password");
+        Member member = MemberFixture.builder().email(email).build();
         member.chargePoint(100000);
         memberRepository.save(member);
 
@@ -139,7 +141,7 @@ class OrderControllerTest extends AbstractIntegrationTest {
         String email = "order-test05-" + uuid() + "@example.com";
         Option option = savedOption(100, 2); // 재고 2
 
-        Member member = new Member(email, "password");
+        Member member = MemberFixture.builder().email(email).build();
         member.chargePoint(1000000);
         memberRepository.save(member);
 
@@ -161,7 +163,7 @@ class OrderControllerTest extends AbstractIntegrationTest {
         String email = "order-test06-" + uuid() + "@example.com";
         Option option = savedOption(100000, 100); // 가격 100000
 
-        Member member = new Member(email, "password"); // 포인트 0 — chargePoint 미호출
+        Member member = MemberFixture.builder().email(email).build(); // 포인트 0 — chargePoint 미호출
         memberRepository.save(member);
 
         String token = bearerToken(email);
@@ -180,7 +182,7 @@ class OrderControllerTest extends AbstractIntegrationTest {
     void test07() throws Exception {
         // arrange
         String email = "order-test07-" + uuid() + "@example.com";
-        memberRepository.save(new Member(email, "password"));
+        memberRepository.save(MemberFixture.builder().email(email).build());
 
         String token = bearerToken(email);
 
@@ -197,11 +199,11 @@ class OrderControllerTest extends AbstractIntegrationTest {
         // arrange
         Option option = savedOption(1000, 10);
         String email = "order-test08-" + uuid() + "@test.com";
-        Member member = new Member(email, "pass");
+        Member member = MemberFixture.builder().email(email).build();
         member.chargePoint(10000);
         memberRepository.save(member);
         String token = bearerToken(member.getEmail());
-        wishRepository.save(new Wish(member.getId(), option.getProduct()));
+        wishRepository.save(WishFixture.builder(member.getId(), option.getProduct()).build());
 
         OrderRequest request = new OrderRequest(option.getId(), 1, null);
 
@@ -219,22 +221,12 @@ class OrderControllerTest extends AbstractIntegrationTest {
 
     private Option savedOption(int price, int stock) {
         String uid = uuid();
-        Category category = categoryRepository.save(
-            new Category("주문테스트카테고리_" + uid, "#FFFFFF", "http://img.com", null)
-        );
-        Product product = productRepository.save(
-            new Product("주문테스트상품_" + uid, price, "http://img.com", category)
-        );
-        return optionRepository.save(
-            new Option(product, "주문테스트옵션_" + uid, stock)
-        );
+        var category = categoryRepository.save(CategoryFixture.builder().name("주문테스트카테고리_" + uid).build());
+        var product = productRepository.save(ProductFixture.builder(category).name("주문테스트상품_" + uid).price(price).build());
+        return optionRepository.save(OptionFixture.builder(product).name("주문테스트옵션_" + uid).quantity(stock).build());
     }
 
     private String bearerToken(String email) {
         return "Bearer " + jwtProvider.createToken(email);
-    }
-
-    private String uuid() {
-        return UUID.randomUUID().toString().substring(0, 6);
     }
 }

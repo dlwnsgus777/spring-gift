@@ -1,19 +1,19 @@
 package gift.product;
 
-import gift.AbstractIntegrationTest;
-import gift.category.Category;
-import gift.category.CategoryRepository;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.UUID;
-
+import static gift.support.UUIDGenerator.uuid;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import gift.AbstractIntegrationTest;
+import gift.category.CategoryRepository;
+import gift.support.CategoryFixture;
+import gift.support.ProductFixture;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.web.servlet.MockMvc;
 
 class AdminProductControllerTest extends AbstractIntegrationTest {
 
@@ -50,10 +50,8 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
     @DisplayName("유효한 데이터로 상품을 등록하면 목록 페이지로 리다이렉트한다")
     void test03() throws Exception {
         // arrange
-        Category category = categoryRepository.save(
-            new Category("Admin생성_" + UUID.randomUUID(), "#FFFFFF", "http://img.com", null)
-        );
-        String name = "Admin상품" + UUID.randomUUID().toString().substring(0, 4);
+        var category = categoryRepository.save(CategoryFixture.builder().name("Admin생성_" + uuid()).build());
+        String name = "Admin상품" + uuid();
 
         // act & assert
         mockMvc.perform(post("/admin/products")
@@ -69,9 +67,7 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
     @DisplayName("Admin에서 카카오가 포함된 상품명으로 등록하면 목록 페이지로 리다이렉트한다")
     void test04() throws Exception {
         // arrange - Admin은 카카오 포함 이름 허용
-        Category category = categoryRepository.save(
-            new Category("Admin카카오_" + UUID.randomUUID(), "#FFFFFF", "http://img.com", null)
-        );
+        var category = categoryRepository.save(CategoryFixture.builder().name("Admin카카오_" + uuid()).build());
 
         // act & assert
         mockMvc.perform(post("/admin/products")
@@ -87,12 +83,8 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
     @DisplayName("존재하는 상품의 수정 폼 페이지를 요청하면 200을 반환한다")
     void test05() throws Exception {
         // arrange
-        Category category = categoryRepository.save(
-            new Category("수정폼_" + UUID.randomUUID(), "#FFFFFF", "http://img.com", null)
-        );
-        Product saved = productRepository.save(
-            new Product("수정전" + UUID.randomUUID().toString().substring(0, 4), 1000, "http://img.com", category)
-        );
+        var category = categoryRepository.save(CategoryFixture.builder().name("수정폼_" + uuid()).build());
+        Product saved = productRepository.save(ProductFixture.builder(category).name("수정전" + uuid()).build());
 
         // act & assert
         mockMvc.perform(get("/admin/products/" + saved.getId() + "/edit"))
@@ -103,16 +95,12 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
     @DisplayName("상품 수정을 완료하면 목록 페이지로 리다이렉트한다")
     void test06() throws Exception {
         // arrange
-        Category category = categoryRepository.save(
-            new Category("수정완료_" + UUID.randomUUID(), "#FFFFFF", "http://img.com", null)
-        );
-        Product saved = productRepository.save(
-            new Product("수정전" + UUID.randomUUID().toString().substring(0, 4), 1000, "http://img.com", category)
-        );
+        var category = categoryRepository.save(CategoryFixture.builder().name("수정완료_" + uuid()).build());
+        Product saved = productRepository.save(ProductFixture.builder(category).name("수정전" + uuid()).build());
 
         // act & assert
         mockMvc.perform(post("/admin/products/" + saved.getId() + "/edit")
-                .param("name", "수정후" + UUID.randomUUID().toString().substring(0, 4))
+                .param("name", "수정후" + uuid())
                 .param("price", "9000")
                 .param("imageUrl", "http://new.com")
                 .param("categoryId", String.valueOf(category.getId())))
@@ -124,12 +112,8 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
     @DisplayName("상품을 삭제하면 목록 페이지로 리다이렉트한다")
     void test07() throws Exception {
         // arrange
-        Category category = categoryRepository.save(
-            new Category("삭제Admin_" + UUID.randomUUID(), "#FFFFFF", "http://img.com", null)
-        );
-        Product saved = productRepository.save(
-            new Product("삭제상품" + UUID.randomUUID().toString().substring(0, 4), 1000, "http://img.com", category)
-        );
+        var category = categoryRepository.save(CategoryFixture.builder().name("삭제Admin_" + uuid()).build());
+        Product saved = productRepository.save(ProductFixture.builder(category).name("삭제상품" + uuid()).build());
 
         // act & assert
         mockMvc.perform(post("/admin/products/" + saved.getId() + "/delete"))

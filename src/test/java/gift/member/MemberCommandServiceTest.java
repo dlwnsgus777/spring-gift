@@ -1,15 +1,15 @@
 package gift.member;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import gift.AbstractIntegrationTest;
+import gift.support.MemberFixture;
+import java.util.NoSuchElementException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.NoSuchElementException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Transactional
 class MemberCommandServiceTest extends AbstractIntegrationTest {
@@ -51,7 +51,7 @@ class MemberCommandServiceTest extends AbstractIntegrationTest {
     @DisplayName("존재하는 회원의 이메일과 비밀번호를 수정하면 변경된 내용을 반환한다")
     void test03() {
         // arrange
-        Member saved = memberRepository.save(new Member("old@example.com", "oldpass"));
+        Member saved = memberRepository.save(MemberFixture.builder().email("old@example.com").password("oldpass").build());
 
         // act
         Member result = memberCommandService.update(saved.getId(), "new@example.com", "newpass");
@@ -73,7 +73,7 @@ class MemberCommandServiceTest extends AbstractIntegrationTest {
     @DisplayName("회원을 삭제하면 DB에서 제거된다")
     void test05() {
         // arrange - FK 없는 신규 회원 생성
-        Member saved = memberRepository.save(new Member("todelete@example.com", "pass"));
+        Member saved = memberRepository.save(MemberFixture.builder().email("todelete@example.com").build());
 
         // act
         memberCommandService.delete(saved.getId());
@@ -86,7 +86,7 @@ class MemberCommandServiceTest extends AbstractIntegrationTest {
     @DisplayName("회원 포인트를 충전하면 포인트가 증가한다")
     void test06() {
         // arrange
-        Member saved = memberRepository.save(new Member("point@example.com", "pass"));
+        Member saved = memberRepository.save(MemberFixture.builder().email("point@example.com").build());
         int before = saved.getPoint();
 
         // act

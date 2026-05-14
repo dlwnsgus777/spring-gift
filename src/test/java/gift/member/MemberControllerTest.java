@@ -1,18 +1,18 @@
 package gift.member;
 
+import static gift.support.UUIDGenerator.uuid;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.AbstractIntegrationTest;
+import gift.support.MemberFixture;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.UUID;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class MemberControllerTest extends AbstractIntegrationTest {
 
@@ -29,7 +29,7 @@ class MemberControllerTest extends AbstractIntegrationTest {
     @DisplayName("유효한 이메일과 비밀번호로 회원가입하면 201과 JWT 토큰을 반환한다")
     void test01() throws Exception {
         // arrange
-        MemberRequest request = new MemberRequest("new_" + UUID.randomUUID() + "@ex.com", "pass");
+        MemberRequest request = new MemberRequest("new_" + uuid() + "@ex.com", "pass");
 
         // act & assert
         mockMvc.perform(post("/api/members/register")
@@ -43,8 +43,8 @@ class MemberControllerTest extends AbstractIntegrationTest {
     @DisplayName("이미 등록된 이메일로 회원가입하면 400을 반환한다")
     void test02() throws Exception {
         // arrange
-        String email = "dup_" + UUID.randomUUID() + "@ex.com";
-        memberRepository.save(new Member(email, "password"));
+        String email = "dup_" + uuid() + "@ex.com";
+        memberRepository.save(MemberFixture.builder().email(email).build());
         MemberRequest request = new MemberRequest(email, "anotherpass");
 
         // act & assert
@@ -85,7 +85,7 @@ class MemberControllerTest extends AbstractIntegrationTest {
     @DisplayName("등록되지 않은 이메일로 로그인하면 400을 반환한다")
     void test05() throws Exception {
         // arrange
-        MemberRequest request = new MemberRequest("ghost_" + UUID.randomUUID() + "@ex.com", "pass");
+        MemberRequest request = new MemberRequest("ghost_" + uuid() + "@ex.com", "pass");
 
         // act & assert
         mockMvc.perform(post("/api/members/login")

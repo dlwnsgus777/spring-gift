@@ -1,17 +1,20 @@
 package gift.order;
 
+import static gift.support.UUIDGenerator.uuid;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gift.AbstractIntegrationTest;
-import gift.category.Category;
 import gift.category.CategoryRepository;
 import gift.member.Member;
 import gift.member.MemberRepository;
 import gift.option.Option;
 import gift.option.OptionRepository;
-import gift.product.Product;
 import gift.product.ProductRepository;
-import java.util.UUID;
+import gift.support.CategoryFixture;
+import gift.support.MemberFixture;
+import gift.support.OptionFixture;
+import gift.support.OrderFixture;
+import gift.support.ProductFixture;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,16 +48,16 @@ class OrderQueryServiceTest extends AbstractIntegrationTest {
     @DisplayName("회원 ID로 주문 목록을 조회하면 해당 회원의 주문만 반환한다")
     void test01() {
         // arrange
-        Member member = memberRepository.save(new Member("order_query_" + uuid() + "@test.com", "pass"));
-        Member otherMember = memberRepository.save(new Member("order_query_other_" + uuid() + "@test.com", "pass"));
+        Member member = memberRepository.save(MemberFixture.builder().email("order_query_" + uuid() + "@test.com").build());
+        Member otherMember = memberRepository.save(MemberFixture.builder().email("order_query_other_" + uuid() + "@test.com").build());
 
         Option option1 = savedOption();
         Option option2 = savedOption();
         Option option3 = savedOption();
 
-        orderRepository.save(new Order(option1, member.getId(), 1, "주문1"));
-        orderRepository.save(new Order(option2, member.getId(), 2, "주문2"));
-        orderRepository.save(new Order(option3, otherMember.getId(), 1, "다른회원주문"));
+        orderRepository.save(OrderFixture.builder(option1, member.getId()).quantity(1).message("주문1").build());
+        orderRepository.save(OrderFixture.builder(option2, member.getId()).quantity(2).message("주문2").build());
+        orderRepository.save(OrderFixture.builder(option3, otherMember.getId()).quantity(1).message("다른회원주문").build());
 
         Pageable pageable = PageRequest.of(0, 10);
 
@@ -69,16 +72,8 @@ class OrderQueryServiceTest extends AbstractIntegrationTest {
     }
 
     private Option savedOption() {
-        Category category = categoryRepository.save(
-            new Category("주문쿼리테스트_" + uuid(), "#FFFFFF", "http://img.com", null)
-        );
-        Product product = productRepository.save(
-            new Product("주문쿼리상품_" + uuid(), 1000, "http://img.com", category)
-        );
-        return optionRepository.save(new Option(product, "옵션_" + uuid(), 100));
-    }
-
-    private String uuid() {
-        return UUID.randomUUID().toString().substring(0, 6);
+        var category = categoryRepository.save(CategoryFixture.builder().name("주문쿼리테스트_" + uuid()).build());
+        var product = productRepository.save(ProductFixture.builder(category).name("주문쿼리상품_" + uuid()).build());
+        return optionRepository.save(OptionFixture.builder(product).name("옵션_" + uuid()).build());
     }
 }

@@ -1,17 +1,17 @@
 package gift.member;
 
-import gift.AbstractIntegrationTest;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.UUID;
-
+import static gift.support.UUIDGenerator.uuid;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import gift.AbstractIntegrationTest;
+import gift.support.MemberFixture;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.web.servlet.MockMvc;
 
 class AdminMemberControllerTest extends AbstractIntegrationTest {
 
@@ -45,7 +45,7 @@ class AdminMemberControllerTest extends AbstractIntegrationTest {
     @DisplayName("유효한 이메일로 회원을 생성하면 목록 페이지로 리다이렉트한다")
     void test03() throws Exception {
         // arrange
-        String email = "new_" + UUID.randomUUID() + "@ex.com";
+        String email = "new_" + uuid() + "@ex.com";
 
         // act & assert
         mockMvc.perform(post("/admin/members")
@@ -71,11 +71,11 @@ class AdminMemberControllerTest extends AbstractIntegrationTest {
     @DisplayName("존재하는 회원의 정보를 수정하면 목록 페이지로 리다이렉트한다")
     void test05() throws Exception {
         // arrange - 테스트 전용 회원 생성
-        Member member = memberRepository.save(new Member("edit_" + UUID.randomUUID() + "@ex.com", "pass"));
+        Member member = memberRepository.save(MemberFixture.builder().email("edit_" + uuid() + "@ex.com").build());
 
         // act & assert
         mockMvc.perform(post("/admin/members/" + member.getId() + "/edit")
-                .param("email", "edited_" + UUID.randomUUID() + "@ex.com")
+                .param("email", "edited_" + uuid() + "@ex.com")
                 .param("password", "newpass"))
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/admin/members"));
@@ -85,7 +85,7 @@ class AdminMemberControllerTest extends AbstractIntegrationTest {
     @DisplayName("회원에게 포인트를 충전하면 목록 페이지로 리다이렉트한다")
     void test06() throws Exception {
         // arrange - 테스트 전용 회원 생성
-        Member member = memberRepository.save(new Member("charge_" + UUID.randomUUID() + "@ex.com", "pass"));
+        Member member = memberRepository.save(MemberFixture.builder().email("charge_" + uuid() + "@ex.com").build());
 
         // act & assert
         mockMvc.perform(post("/admin/members/" + member.getId() + "/charge-point")
@@ -98,7 +98,7 @@ class AdminMemberControllerTest extends AbstractIntegrationTest {
     @DisplayName("회원을 삭제하면 목록 페이지로 리다이렉트한다")
     void test07() throws Exception {
         // arrange - FK 없는 신규 회원 생성
-        Member member = memberRepository.save(new Member("delete_" + UUID.randomUUID() + "@ex.com", "pass"));
+        Member member = memberRepository.save(MemberFixture.builder().email("delete_" + uuid() + "@ex.com").build());
 
         // act & assert
         mockMvc.perform(post("/admin/members/" + member.getId() + "/delete"))

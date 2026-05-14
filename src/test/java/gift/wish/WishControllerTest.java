@@ -1,5 +1,6 @@
 package gift.wish;
 
+import static gift.support.UUIDGenerator.uuid;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -9,11 +10,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.AbstractIntegrationTest;
 import gift.auth.JwtProvider;
-import gift.category.Category;
 import gift.category.CategoryRepository;
 import gift.product.Product;
 import gift.product.ProductRepository;
-import java.util.UUID;
+import gift.support.CategoryFixture;
+import gift.support.ProductFixture;
+import gift.support.WishFixture;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,7 +123,7 @@ class WishControllerTest extends AbstractIntegrationTest {
         String token = "Bearer " + jwtProvider.createToken("user1@example.com");
         Product product = savedProduct();
         // user1의 memberId=2
-        Wish wish = wishRepository.save(new Wish(2L, product));
+        Wish wish = wishRepository.save(WishFixture.builder(2L, product).build());
 
         // act & assert
         mockMvc.perform(delete("/api/wishes/" + wish.getId())
@@ -137,7 +139,7 @@ class WishControllerTest extends AbstractIntegrationTest {
         String user2Token = "Bearer " + jwtProvider.createToken("user2@example.com");
         Product product = savedProduct();
         // user1의 memberId=2
-        Wish wish = wishRepository.save(new Wish(2L, product));
+        Wish wish = wishRepository.save(WishFixture.builder(2L, product).build());
 
         // act & assert
         mockMvc.perform(delete("/api/wishes/" + wish.getId())
@@ -158,15 +160,7 @@ class WishControllerTest extends AbstractIntegrationTest {
     }
 
     private Product savedProduct() {
-        Category category = categoryRepository.save(
-            new Category("위시테스트카테고리_" + uuid(), "#FFFFFF", "http://img.com", null)
-        );
-        return productRepository.save(
-            new Product("위시테스트상품_" + uuid(), 1000, "http://img.com", category)
-        );
-    }
-
-    private String uuid() {
-        return UUID.randomUUID().toString().substring(0, 6);
+        var category = categoryRepository.save(CategoryFixture.builder().name("위시테스트카테고리_" + uuid()).build());
+        return productRepository.save(ProductFixture.builder(category).name("위시테스트상품_" + uuid()).build());
     }
 }

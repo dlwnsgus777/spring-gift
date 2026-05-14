@@ -1,15 +1,6 @@
 package gift.category;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import gift.AbstractIntegrationTest;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.UUID;
-
+import static gift.support.UUIDGenerator.uuid;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -17,6 +8,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import gift.AbstractIntegrationTest;
+import gift.support.CategoryFixture;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
 class CategoryControllerTest extends AbstractIntegrationTest {
 
@@ -44,7 +44,7 @@ class CategoryControllerTest extends AbstractIntegrationTest {
     @DisplayName("카테고리를 생성하면 201과 Location 헤더를 반환한다")
     void test02() throws Exception {
         // arrange - UUID로 다른 테스트와 이름 충돌 방지
-        String uniqueName = "생성_" + UUID.randomUUID();
+        String uniqueName = "생성_" + uuid();
         CategoryRequest request = new CategoryRequest(uniqueName, "#FFFFFF", "http://img.url", null);
 
         // act & assert
@@ -73,10 +73,8 @@ class CategoryControllerTest extends AbstractIntegrationTest {
     @DisplayName("존재하는 카테고리를 수정하면 변경된 내용을 반환한다")
     void test04() throws Exception {
         // arrange - 테스트 전용 카테고리 생성
-        Category saved = categoryRepository.save(
-            new Category("수정전_" + UUID.randomUUID(), "#000000", "http://img.url", null)
-        );
-        String updatedName = "수정후_" + UUID.randomUUID();
+        Category saved = categoryRepository.save(CategoryFixture.builder().name("수정전_" + uuid()).color("#000000").build());
+        String updatedName = "수정후_" + uuid();
         CategoryRequest request = new CategoryRequest(updatedName, "#FFFFFF", "http://new.url", null);
 
         // act & assert
@@ -104,9 +102,7 @@ class CategoryControllerTest extends AbstractIntegrationTest {
     @DisplayName("카테고리를 삭제하면 204를 반환한다")
     void test06() throws Exception {
         // arrange - 상품 없는 신규 카테고리 생성
-        Category saved = categoryRepository.save(
-            new Category("삭제_" + UUID.randomUUID(), "#000000", "http://img.url", null)
-        );
+        Category saved = categoryRepository.save(CategoryFixture.builder().name("삭제_" + uuid()).color("#000000").build());
 
         // act & assert
         mockMvc.perform(delete("/api/categories/" + saved.getId()))

@@ -1,19 +1,19 @@
 package gift.product;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import gift.AbstractIntegrationTest;
-import gift.category.Category;
 import gift.category.CategoryRepository;
+import gift.support.CategoryFixture;
+import gift.support.ProductFixture;
+import java.util.NoSuchElementException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.NoSuchElementException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Transactional
 class ProductQueryServiceTest extends AbstractIntegrationTest {
@@ -31,10 +31,8 @@ class ProductQueryServiceTest extends AbstractIntegrationTest {
     @DisplayName("존재하는 ID로 조회하면 해당 상품을 반환한다")
     void test01() {
         // arrange
-        Category category = categoryRepository.save(
-            new Category("쿼리테스트", "#FFFFFF", "http://img.com", null)
-        );
-        Product saved = productRepository.save(new Product("조회상품", 1000, "http://img.com", category));
+        var category = categoryRepository.save(CategoryFixture.builder().name("쿼리테스트").build());
+        Product saved = productRepository.save(ProductFixture.builder(category).name("조회상품").build());
 
         // act
         Product result = productQueryService.findById(saved.getId());

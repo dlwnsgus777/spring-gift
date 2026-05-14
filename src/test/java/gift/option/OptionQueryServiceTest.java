@@ -4,11 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import gift.AbstractIntegrationTest;
-import gift.category.Category;
 import gift.category.CategoryRepository;
 import gift.product.Product;
 import gift.product.ProductCommandService;
 import gift.product.ProductRepository;
+import gift.support.CategoryFixture;
+import gift.support.ProductFixture;
 import java.util.List;
 import java.util.NoSuchElementException;
 import org.junit.jupiter.api.DisplayName;
@@ -35,10 +36,8 @@ class OptionQueryServiceTest extends AbstractIntegrationTest {
     @DisplayName("상품이 존재하면 해당 상품의 옵션 목록을 반환한다")
     void test01() {
         // arrange
-        Category category = categoryRepository.save(
-            new Category("옵션쿼리테스트", "#FFFFFF", "http://img.com", null)
-        );
-        Product product = productRepository.save(new Product("테스트상품", 1000, "http://img.com", category));
+        var category = categoryRepository.save(CategoryFixture.builder().name("옵션쿼리테스트").build());
+        Product product = productRepository.save(ProductFixture.builder(category).name("테스트상품").build());
         productCommandService.addOption(product.getId(), new OptionRequest("옵션A", 10));
         productCommandService.addOption(product.getId(), new OptionRequest("옵션B", 5));
 

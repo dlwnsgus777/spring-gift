@@ -1,10 +1,10 @@
 package gift.order;
 
+import static gift.support.UUIDGenerator.uuid;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import gift.AbstractIntegrationTest;
-import gift.category.Category;
 import gift.category.CategoryRepository;
 import gift.member.Member;
 import gift.member.MemberRepository;
@@ -12,9 +12,12 @@ import gift.option.Option;
 import gift.option.OptionRepository;
 import gift.product.Product;
 import gift.product.ProductRepository;
-import gift.wish.Wish;
+import gift.support.CategoryFixture;
+import gift.support.MemberFixture;
+import gift.support.OptionFixture;
+import gift.support.ProductFixture;
+import gift.support.WishFixture;
 import gift.wish.WishRepository;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,7 +57,7 @@ class OrderCommandServiceTest extends AbstractIntegrationTest {
     void test01() {
         // arrange
         Option option = savedOption("주문커맨드상품_" + uuid(), 1000, 10);
-        Member member = memberRepository.save(new Member("order_cmd_" + uuid() + "@test.com", "pass"));
+        Member member = memberRepository.save(MemberFixture.builder().email("order_cmd_" + uuid() + "@test.com").build());
         member.chargePoint(10000);
         memberRepository.save(member);
 
@@ -77,7 +80,7 @@ class OrderCommandServiceTest extends AbstractIntegrationTest {
     void test02() {
         // arrange
         Option option = savedOption("주문재고부족_" + uuid(), 1000, 2);
-        Member member = memberRepository.save(new Member("order_cmd_stock_" + uuid() + "@test.com", "pass"));
+        Member member = memberRepository.save(MemberFixture.builder().email("order_cmd_stock_" + uuid() + "@test.com").build());
         member.chargePoint(100000);
         memberRepository.save(member);
 
@@ -91,7 +94,7 @@ class OrderCommandServiceTest extends AbstractIntegrationTest {
     void test03() {
         // arrange
         Option option = savedOption("주문포인트부족_" + uuid(), 100000, 10);
-        Member member = memberRepository.save(new Member("order_cmd_point_" + uuid() + "@test.com", "pass"));
+        Member member = memberRepository.save(MemberFixture.builder().email("order_cmd_point_" + uuid() + "@test.com").build());
 
         // act + assert
         assertThatThrownBy(() -> orderCommandService.createOrder(member.getId(), option.getId(), 1, null))
@@ -104,7 +107,7 @@ class OrderCommandServiceTest extends AbstractIntegrationTest {
     void test04() {
         // arrange
         Option option = savedOption("주문롤백테스트_" + uuid(), 10000, 5);
-        Member member = memberRepository.save(new Member("order_rollback_" + uuid() + "@test.com", "pass"));
+        Member member = memberRepository.save(MemberFixture.builder().email("order_rollback_" + uuid() + "@test.com").build());
         // member has 0 points — insufficient for price 10000 * 1
 
         // act
@@ -122,10 +125,10 @@ class OrderCommandServiceTest extends AbstractIntegrationTest {
         // arrange
         Option option = savedOption("주문위시삭제_" + uuid(), 1000, 10);
         Product product = option.getProduct();
-        Member member = memberRepository.save(new Member("order_wish_del_" + uuid() + "@test.com", "pass"));
+        Member member = memberRepository.save(MemberFixture.builder().email("order_wish_del_" + uuid() + "@test.com").build());
         member.chargePoint(10000);
         memberRepository.save(member);
-        wishRepository.save(new Wish(member.getId(), product));
+        wishRepository.save(WishFixture.builder(member.getId(), product).build());
 
         // act
         orderCommandService.createOrder(member.getId(), option.getId(), 1, null);
@@ -140,10 +143,10 @@ class OrderCommandServiceTest extends AbstractIntegrationTest {
     void test06() throws InterruptedException {
         // arrange — 재고 1개, 회원 2명 준비
         Option option = savedOption(1000, 1);
-        Member member1 = memberRepository.save(new Member("lock_m1_" + uuid() + "@t.com", "p"));
+        Member member1 = memberRepository.save(MemberFixture.builder().email("lock_m1_" + uuid() + "@t.com").build());
         member1.chargePoint(100000);
         memberRepository.save(member1);
-        Member member2 = memberRepository.save(new Member("lock_m2_" + uuid() + "@t.com", "p"));
+        Member member2 = memberRepository.save(MemberFixture.builder().email("lock_m2_" + uuid() + "@t.com").build());
         member2.chargePoint(100000);
         memberRepository.save(member2);
 
@@ -218,20 +221,12 @@ class OrderCommandServiceTest extends AbstractIntegrationTest {
     }
 
     private Option savedOption(String productName, int price, int quantity) {
-        Category category = categoryRepository.save(
-            new Category("주문커맨드카테고리_" + uuid(), "#FFFFFF", "http://img.com", null)
-        );
-        Product product = productRepository.save(
-            new Product(productName, price, "http://img.com", category)
-        );
-        return optionRepository.save(new Option(product, "기본옵션_" + uuid(), quantity));
+        var category = categoryRepository.save(CategoryFixture.builder().name("주문커맨드카테고리_" + uuid()).build());
+        var product = productRepository.save(ProductFixture.builder(category).name(productName).price(price).build());
+        return optionRepository.save(OptionFixture.builder(product).name("기본옵션_" + uuid()).quantity(quantity).build());
     }
 
     private Option savedOption(int price, int quantity) {
         return savedOption("주문동시성_" + uuid(), price, quantity);
-    }
-
-    private String uuid() {
-        return UUID.randomUUID().toString().substring(0, 6);
     }
 }

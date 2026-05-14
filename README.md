@@ -95,7 +95,17 @@
 
 ---
 
-### 9단계: KakaoAuth 도메인
+### 9단계: 코드 정리
+
+> 전체 도메인 완료 후 공통 코드 품질 개선
+
+- [x] `support` 패키지 생성 — `UUIDGenerator.uuid()` static 메서드로 테스트 전체의 uuid 생성 중복 제거
+- [x] 엔티티별 Fixture 클래스 생성 (빌더 패턴) — `MemberFixture` / `CategoryFixture` / `ProductFixture` / `OptionFixture` / `WishFixture` / `OrderFixture`
+- [x] 전체 테스트 파일에서 `new Entity(...)` 직접 생성을 Fixture 빌더로 교체 (17개 파일)
+
+---
+
+### 10단계: KakaoAuth 도메인
 
 > Kakao OAuth2 콜백 로직 — auth 패키지 서비스 계층 완성
 
@@ -128,7 +138,8 @@
 | 6 | Option | `OptionNameValidator` → `Option` 생성자 이동 + 비즈니스 규칙 |
 | 7 | Wish | 인증 + 중복 체크 흐름 정리 |
 | 8 | Order | 트랜잭션 + 누락 기능 + 가장 복잡한 흐름 |
-| 9 | KakaoAuth | Kakao OAuth2 콜백 서비스 추출 |
+| 9 | 코드 정리 | 전체 도메인 완료 후 공통 코드 품질 개선 |
+| 10 | KakaoAuth | Kakao OAuth2 콜백 서비스 추출 |
 
 ---
 

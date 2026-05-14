@@ -1,15 +1,15 @@
 package gift.category;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import gift.AbstractIntegrationTest;
+import gift.support.CategoryFixture;
+import java.util.NoSuchElementException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.NoSuchElementException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Transactional
 class CategoryCommandServiceTest extends AbstractIntegrationTest {
@@ -65,7 +65,7 @@ class CategoryCommandServiceTest extends AbstractIntegrationTest {
     @DisplayName("카테고리를 삭제하면 DB에서 제거된다")
     void test04() {
         // arrange - FK 없는 신규 카테고리 생성
-        Category saved = categoryRepository.save(new Category("삭제대상", "#000000", "http://img.url", null));
+        Category saved = categoryRepository.save(CategoryFixture.builder().name("삭제대상").color("#000000").build());
 
         // act
         categoryCommandService.delete(saved.getId());

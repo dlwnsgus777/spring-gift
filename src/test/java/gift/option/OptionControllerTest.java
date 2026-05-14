@@ -1,5 +1,6 @@
 package gift.option;
 
+import static gift.support.UUIDGenerator.uuid;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -9,11 +10,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.AbstractIntegrationTest;
-import gift.category.Category;
 import gift.category.CategoryRepository;
 import gift.product.Product;
 import gift.product.ProductRepository;
-import java.util.UUID;
+import gift.support.CategoryFixture;
+import gift.support.OptionFixture;
+import gift.support.ProductFixture;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +44,7 @@ class OptionControllerTest extends AbstractIntegrationTest {
     void test01() throws Exception {
         // arrange
         Product product = savedProduct();
-        optionRepository.save(new Option(product, "옵션A_" + uuid(), 10));
+        optionRepository.save(OptionFixture.builder(product).name("옵션A_" + uuid()).build());
 
         // act & assert
         mockMvc.perform(get("/api/products/" + product.getId() + "/options"))
@@ -82,7 +84,7 @@ class OptionControllerTest extends AbstractIntegrationTest {
         // arrange
         Product product = savedProduct();
         String duplicateName = "중복옵션_" + uuid();
-        optionRepository.save(new Option(product, duplicateName, 10));
+        optionRepository.save(OptionFixture.builder(product).name(duplicateName).build());
         OptionRequest request = new OptionRequest(duplicateName, 5);
 
         // act & assert
@@ -111,8 +113,8 @@ class OptionControllerTest extends AbstractIntegrationTest {
     void test06() throws Exception {
         // arrange
         Product product = savedProduct();
-        optionRepository.save(new Option(product, "옵션1_" + uuid(), 10));
-        Option toDelete = optionRepository.save(new Option(product, "옵션2_" + uuid(), 5));
+        optionRepository.save(OptionFixture.builder(product).name("옵션1_" + uuid()).build());
+        Option toDelete = optionRepository.save(OptionFixture.builder(product).name("옵션2_" + uuid()).build());
 
         // act & assert
         mockMvc.perform(delete("/api/products/" + product.getId() + "/options/" + toDelete.getId()))
@@ -124,7 +126,7 @@ class OptionControllerTest extends AbstractIntegrationTest {
     void test07() throws Exception {
         // arrange
         Product product = savedProduct();
-        Option only = optionRepository.save(new Option(product, "유일옵션_" + uuid(), 10));
+        Option only = optionRepository.save(OptionFixture.builder(product).name("유일옵션_" + uuid()).build());
 
         // act & assert
         mockMvc.perform(delete("/api/products/" + product.getId() + "/options/" + only.getId()))
@@ -136,8 +138,8 @@ class OptionControllerTest extends AbstractIntegrationTest {
     void test08() throws Exception {
         // arrange — 옵션 2개를 만들어야 '최소 1개' 검증을 통과하고 404 경로까지 도달한다
         Product product = savedProduct();
-        optionRepository.save(new Option(product, "옵션A_" + uuid(), 10));
-        optionRepository.save(new Option(product, "옵션B_" + uuid(), 5));
+        optionRepository.save(OptionFixture.builder(product).name("옵션A_" + uuid()).build());
+        optionRepository.save(OptionFixture.builder(product).name("옵션B_" + uuid()).build());
 
         // act & assert
         mockMvc.perform(delete("/api/products/" + product.getId() + "/options/999999"))
@@ -145,15 +147,7 @@ class OptionControllerTest extends AbstractIntegrationTest {
     }
 
     private Product savedProduct() {
-        Category category = categoryRepository.save(
-            new Category("옵션테스트카테고리_" + uuid(), "#FFFFFF", "http://img.com", null)
-        );
-        return productRepository.save(
-            new Product("옵션테스트상품_" + uuid(), 1000, "http://img.com", category)
-        );
-    }
-
-    private String uuid() {
-        return UUID.randomUUID().toString().substring(0, 6);
+        var category = categoryRepository.save(CategoryFixture.builder().name("옵션테스트카테고리_" + uuid()).build());
+        return productRepository.save(ProductFixture.builder(category).name("옵션테스트상품_" + uuid()).build());
     }
 }
