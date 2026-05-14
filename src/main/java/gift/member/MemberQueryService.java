@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -25,5 +26,9 @@ public class MemberQueryService {
 
     public Member findByEmail(String email) {
         return memberRepository.findByEmail(email).orElseThrow();
+    }
+
+    public Optional<Member> findByEmailOptional(String email) {
+        return memberRepository.findByEmail(email);
     }
 }

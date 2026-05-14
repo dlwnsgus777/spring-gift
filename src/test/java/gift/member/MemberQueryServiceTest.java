@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -72,5 +73,32 @@ class MemberQueryServiceTest extends AbstractIntegrationTest {
         // act & assert
         assertThatThrownBy(() -> memberQueryService.findByEmail("ghost@nowhere.com"))
             .isInstanceOf(NoSuchElementException.class);
+    }
+
+    @Test
+    @DisplayName("존재하는 이메일로 findByEmailOptional 조회하면 Optional.of(member)를 반환한다")
+    void test06() {
+        // arrange - Flyway V2 시드 데이터
+        String email = "user1@example.com";
+
+        // act
+        Optional<Member> result = memberQueryService.findByEmailOptional(email);
+
+        // assert
+        assertThat(result).isPresent();
+        assertThat(result.get().getEmail()).isEqualTo(email);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 이메일로 findByEmailOptional 조회하면 Optional.empty()를 반환한다")
+    void test07() {
+        // arrange
+        String email = "ghost@nowhere.com";
+
+        // act
+        Optional<Member> result = memberQueryService.findByEmailOptional(email);
+
+        // assert
+        assertThat(result).isEmpty();
     }
 }
