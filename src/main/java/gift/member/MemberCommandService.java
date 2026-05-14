@@ -35,4 +35,8 @@ public class MemberCommandService {
         member.chargePoint(amount);
         return member;
     }
+
+    public Member createKakaoMember(String email) {
+        return memberRepository.save(new Member(email));
+    }
 }

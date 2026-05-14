@@ -103,4 +103,20 @@ class MemberCommandServiceTest extends AbstractIntegrationTest {
         assertThatThrownBy(() -> memberCommandService.chargePoint(999999L, 100))
             .isInstanceOf(NoSuchElementException.class);
     }
+
+    @Test
+    @DisplayName("카카오 이메일로 createKakaoMember() 호출 시 password가 null인 Member가 저장된다")
+    void test08() {
+        // arrange
+        String email = "kakao_" + java.util.UUID.randomUUID() + "@kakao.com";
+
+        // act
+        Member result = memberCommandService.createKakaoMember(email);
+
+        // assert
+        assertThat(result.getId()).isNotNull();
+        assertThat(result.getEmail()).isEqualTo(email);
+        assertThat(result.getPassword()).isNull();
+        assertThat(memberRepository.findById(result.getId())).isPresent();
+    }
 }
