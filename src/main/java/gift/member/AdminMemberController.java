@@ -1,6 +1,5 @@
 package gift.member;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +15,6 @@ public class AdminMemberController {
     private final MemberQueryService memberQueryService;
     private final MemberCommandService memberCommandService;
 
-    @Autowired
     public AdminMemberController(
         MemberQueryService memberQueryService,
         MemberCommandService memberCommandService

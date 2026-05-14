@@ -102,6 +102,10 @@
 - [x] `support` 패키지 생성 — `UUIDGenerator.uuid()` static 메서드로 테스트 전체의 uuid 생성 중복 제거
 - [x] 엔티티별 Fixture 클래스 생성 (빌더 패턴) — `MemberFixture` / `CategoryFixture` / `ProductFixture` / `OptionFixture` / `WishFixture` / `OrderFixture`
 - [x] 전체 테스트 파일에서 `new Entity(...)` 직접 생성을 Fixture 빌더로 교체 (17개 파일)
+- [x] `gift.notification` 패키지 분리 — `MessageClient` / `KakaoMessageClient` / `NotifySendService` / `FakeMessageClient`를 `gift.order`에서 독립 패키지로 이동
+- [x] 미사용 클래스 제거 — `AuthenticationResolver` (`AuthService.extractMember()`로 완전 대체)
+- [x] 불필요한 `@Autowired` 및 import 제거 — 단일 생성자는 Spring이 자동 주입 (`JwtProvider`, `MemberController`, `AdminMemberController`)
+- [x] what 주석 제거 — `JwtProvider` Javadoc 3개, `Order` / `Wish`의 `// primitive FK` 주석
 
 ---
 
