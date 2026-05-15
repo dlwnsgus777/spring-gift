@@ -218,6 +218,33 @@ new Product(name, ...); // 내부에서 검증, 위반 시 예외
 | Order 도메인 8단계 — TDD 7사이클로 OrderController Repository 의존 제거, 트랜잭션 경계 증명, Pessimistic Lock 동시성 처리 | 도메인 분석·계획서 작성, OrderQueryService/OrderCommandService/NotifySendService TDD, FakeMessageClient 테스트 더블, findByIdWithLock SELECT FOR UPDATE 적용, ADR 008 작성 | [세션 문서](docs/ai-sessions/2026-05-14-2.md) |
 | 9단계 코드 정리 — support 패키지·Fixture 도입, notification 패키지 분리, 미사용 코드·주석 제거 | UUIDGenerator + 6개 Fixture 클래스 생성, 17개 테스트 파일 교체, gift.notification 패키지 신설, AuthenticationResolver 삭제, @Autowired·Javadoc·what 주석 제거 | [세션 문서](docs/ai-sessions/2026-05-14-3.md) |
 | KakaoAuth 도메인 10단계 — 계획서 작성 + TDD 11사이클로 KakaoAuthService 추출, KakaoTokenResponse·KakaoUserResponse top-level 분리 | 계획서 작성(FakeKakaoLoginClient 상속 방식), KakaoAuthControllerTest/KakaoAuthServiceTest TDD, MemberQueryService·MemberCommandService 확장, Controller 리팩터링 | [세션 문서](docs/ai-sessions/2026-05-14-4.md) |
+| 현재 코드를 파악해서 docs/domain/ 내부 문서들을 최신화해줘 | 9개 핵심 소스 파일 분석, 6개 기존 도메인 문서 수정 + notification_domain.md 신규 작성 (코드-문서 불일치 7곳 해소) | [세션 문서](docs/ai-sessions/2026-05-15.md) |
+
+---
+
+## AI 스킬 목록
+
+이 프로젝트에서 사용 가능한 Claude Code 스킬. 트리거 키워드를 프롬프트에 포함하면 자동으로 실행된다.
+
+### 프로젝트 전용 스킬 (`.claude/skills/`)
+
+| 스킬 | 트리거 키워드 예시 | 설명 |
+|------|-------------------|------|
+| `tdd-team` | "TDD로 개발해줘", "TDD 시작" | Red→Green→Refactor 3단계를 에이전트 팀이 순차 실행. 실패 테스트 작성 → 최소 구현 → 리팩터링 사이클을 자동화 |
+| `plan-maker` | "계획 작성해줘", "구현 계획 만들어줘" | `docs/plan/` 하위에 구조화된 구현 계획 마크다운 문서 생성. 체크리스트, 단계별 작업, 기술 결정 포함 |
+| `adr-writer` | "ADR 남겨줘", "결정사항 문서화해줘" | 대화에서 아키텍처 결정을 추출해 `docs/adr/` 에 번호 붙은 ADR 파일 생성. 채택 이유와 포기한 대안 기록 |
+| `domain-analyzer` | "도메인 분석해줘", "도메인 정리해줘" | 도메인 패키지 소스와 Flyway 마이그레이션을 읽어 `docs/domain/` 에 비즈니스 관점 문서 생성 |
+| `ai-work-summary` | "ai 작업 요약해줘", "오늘 작업 정리해줘" | git 변경 사항과 대화 내용을 분석해 `docs/ai-sessions/` 에 세션 요약 문서 생성. README AI 활용 기록 자동 업데이트 |
+
+### 전역 스킬 (모든 프로젝트 공통)
+
+| 스킬 | 트리거 키워드 예시 | 설명 |
+|------|-------------------|------|
+| `branch-review` | "브랜치 리뷰해줘" | 현재 브랜치와 `main`의 차이를 4개 차원(코드 컨벤션·테스트·아키텍처·보안)으로 평가해 리뷰 보고서 생성 |
+| `test-driven-development` | (구현 작업 시 AUTO-TRIGGER) | Java/Spring Boot 특화 TDD 가이드. Red→Green→Refactor 원칙과 안티패턴 경고 |
+| `backend-standards` | (백엔드 작업 시 AUTO-TRIGGER) | SOLID·Clean Architecture·예외 처리·트랜잭션 등 백엔드 개발 표준 자동 적용 |
+| `coding_standards` | (코드 작성 시 AUTO-TRIGGER) | 가독성·KISS·명확한 네이밍 등 공통 코딩 표준 자동 적용 |
+| `source-packager` | "소스 패키징해줘", "공유용 zip 만들어줘" | 민감정보 마스킹 후 외부 공유용 ZIP 파일로 압축 |
 
 ---
 
