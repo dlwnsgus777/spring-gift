@@ -269,8 +269,10 @@ IntelliJ HTTP Client로 API를 직접 테스트할 수 있는 `.http` 파일 모
 | 항목 | 현재 상태 |
 |------|-----------|
 | 테스트 환경 | Testcontainers MySQL 컨테이너 + Flyway 마이그레이션 검증 완료 |
-| Service 계층 | Category / Member / Product / Wish 완료. Order는 Controller가 Repository 직접 사용 |
-| 트랜잭션 | Category·Member·Auth·Product·Wish 서비스에 `@Transactional` 적용 완료. Order 미적용 |
+| Service 계층 | 전 도메인 완료 — Category / Member / Product / Option / Wish / Order / KakaoAuth |
+| 트랜잭션 | 전 도메인 `@Transactional` 적용 완료. `OrderCommandService.createOrder()`는 재고 차감·포인트 차감·주문 저장·위시 삭제를 단일 트랜잭션으로 처리 |
 | 예외 처리 | `GlobalExceptionHandler`로 일원화 (`NoSuchElementException` → 404, `IllegalArgumentException` → 400, `UnauthorizedException` → 401, `ForbiddenException` → 403) |
-| 위시리스트 자동 삭제 | 미구현 (Order 흐름 주석에 의도만 존재) |
-| 도메인 검증 | Product 생성자로 이동 완료. `OptionNameValidator`는 외부 유틸 클래스에 위치 |
+| 동시성 처리 | `Option` 재고에 Pessimistic Lock(`SELECT FOR UPDATE`) 적용 완료 |
+| 위시리스트 자동 삭제 | 구현 완료 — 주문 시 해당 상품이 위시리스트에 있으면 자동 삭제 |
+| 도메인 검증 | `Product`·`Option` 생성자 내부 검증으로 이동 완료 |
+| HTTP 테스트 | `http/` 디렉토리에 도메인별 `.http` 파일 7개 구성 완료 |
