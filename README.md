@@ -262,16 +262,6 @@ IntelliJ HTTP Client로 API를 직접 테스트할 수 있는 `.http` 파일 모
 | `domain-analyzer` | "도메인 분석해줘", "도메인 정리해줘" | 도메인 패키지 소스와 Flyway 마이그레이션을 읽어 `docs/domain/` 에 비즈니스 관점 문서 생성 |
 | `ai-work-summary` | "ai 작업 요약해줘", "오늘 작업 정리해줘" | git 변경 사항과 대화 내용을 분석해 `docs/ai-sessions/` 에 세션 요약 문서 생성. README AI 활용 기록 자동 업데이트 |
 
-### 전역 스킬 (모든 프로젝트 공통)
-
-| 스킬 | 트리거 키워드 예시 | 설명 |
-|------|-------------------|------|
-| `branch-review` | "브랜치 리뷰해줘" | 현재 브랜치와 `main`의 차이를 4개 차원(코드 컨벤션·테스트·아키텍처·보안)으로 평가해 리뷰 보고서 생성 |
-| `test-driven-development` | (구현 작업 시 AUTO-TRIGGER) | Java/Spring Boot 특화 TDD 가이드. Red→Green→Refactor 원칙과 안티패턴 경고 |
-| `backend-standards` | (백엔드 작업 시 AUTO-TRIGGER) | SOLID·Clean Architecture·예외 처리·트랜잭션 등 백엔드 개발 표준 자동 적용 |
-| `coding_standards` | (코드 작성 시 AUTO-TRIGGER) | 가독성·KISS·명확한 네이밍 등 공통 코딩 표준 자동 적용 |
-| `source-packager` | "소스 패키징해줘", "공유용 zip 만들어줘" | 민감정보 마스킹 후 외부 공유용 ZIP 파일로 압축 |
-
 ---
 
 ## 현재 상태 요약
