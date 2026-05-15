@@ -1,18 +1,20 @@
-package gift.order;
+package gift.notification;
 
+import gift.order.Order;
 import gift.product.Product;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;
 
 @Component
-public class KakaoMessageClient {
+public class KakaoMessageClient implements MessageClient {
     private final RestClient restClient;
 
     public KakaoMessageClient(RestClient.Builder builder) {
         this.restClient = builder.build();
     }
 
+    @Override
     public void sendToMe(String accessToken, Order order, Product product) {
         var templateObject = buildTemplate(order, product);
 

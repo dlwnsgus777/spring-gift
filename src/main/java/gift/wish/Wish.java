@@ -13,7 +13,6 @@ public class Wish {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    // primitive FK - no entity reference
     private Long memberId;
 
     @ManyToOne

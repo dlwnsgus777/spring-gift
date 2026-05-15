@@ -1,0 +1,17 @@
+### Member API (Admin)
+### 회원 관리 및 포인트 충전 (관리자)
+
+### 1. 모든 회원 조회
+GET {{baseUrl}}/admin/members
+
+###
+
+### 2. 포인트 충전
+POST {{baseUrl}}/admin/members/{{memberId}}/charge-point?amount=1000000000
+
+###
+
+### 3. 회원 삭제
+POST {{baseUrl}}/admin/members/{{memberId}}/delete
+
+###

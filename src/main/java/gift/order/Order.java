@@ -21,7 +21,6 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "option_id")
     private Option option;
-    // primitive FK
     private Long memberId;
     private int quantity;
     private String message;

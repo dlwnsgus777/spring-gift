@@ -10,9 +10,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import java.util.List;
+
 @Entity
 @Table(name = "options")
 public class Option {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,6 +34,7 @@ public class Option {
     }
 
     public Option(Product product, String name, int quantity) {
+        validateName(name);
         this.product = product;
         this.name = name;
         this.quantity = quantity;
@@ -57,5 +61,12 @@ public class Option {
 
     public int getQuantity() {
         return quantity;
+    }
+
+    private static void validateName(String name) {
+        List<String> errors = OptionNameValidator.validate(name);
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(String.join(", ", errors));
+        }
     }
 }

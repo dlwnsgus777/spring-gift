@@ -1,0 +1,39 @@
+### Auth API
+### 카카오 OAuth 로그인 관련 API
+
+### 1. 카카오 로그인 페이지 리다이렉트
+GET {{baseUrl}}/api/auth/kakao/login
+
+###
+
+### 2. 카카오 OAuth 콜백 (브라우저에서 리다이렉트되는 URL)
+# 실제 사용 시 카카오에서 발급받은 code 값으로 교체
+GET {{baseUrl}}/api/auth/kakao/callback?code=KAKAO_AUTH_CODE
+
+###
+
+### 3. 회원 가입 (이메일/비밀번호)
+POST {{baseUrl}}/api/members/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+> {% client.global.set("token", response.body.token) %}
+
+###
+
+### 4. 로그인 (이메일/비밀번호)
+POST {{baseUrl}}/api/members/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+> {% client.global.set("token", response.body.token) %}
+
+###
