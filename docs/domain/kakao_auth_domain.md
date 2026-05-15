@@ -1,7 +1,17 @@
 # KakaoAuth (인증) 도메인 분석
 
 > 작성일: 2026-05-11  
+> 최종 수정일: 2026-05-15  
 > 분석 대상 브랜치: feature/youth-6-fifth-assignment
+
+---
+
+## 변경 히스토리
+
+| 날짜 | 내용 |
+|------|------|
+| 2026-05-11 | 최초 분석 — KakaoAuthController가 MemberRepository 직접 사용 |
+| 2026-05-15 | KakaoAuthService 신설로 콜백 로직 분리; AuthenticationResolver 제거 → AuthService.extractMember()로 통합 |
 
 ---
 
@@ -9,12 +19,14 @@
 
 ```
 src/main/java/gift/auth/
-├── AuthService.java              — 일반 이메일/비밀번호 회원가입·로그인 서비스
-├── AuthenticationResolver.java  — Bearer 토큰 → Member 변환 (컨트롤러 파라미터 주입)
+├── AuthService.java              — 일반 이메일/비밀번호 회원가입·로그인, Bearer 토큰 → Member 변환
 ├── JwtProvider.java              — JWT 발급·검증 (HMAC-SHA)
 ├── KakaoAuthController.java     — Kakao OAuth2 흐름 처리 컨트롤러
+├── KakaoAuthService.java        — Kakao 콜백 처리 서비스 (토큰 교환·회원 조회·자동 가입)
 ├── KakaoLoginClient.java        — Kakao API HTTP 클라이언트 (토큰 교환·사용자 정보 조회)
 ├── KakaoLoginProperties.java    — Kakao OAuth2 설정값 (clientId, clientSecret, redirectUri)
+├── KakaoTokenResponse.java      — Kakao 토큰 교환 응답 DTO
+├── KakaoUserResponse.java       — Kakao 사용자 정보 응답 DTO
 └── TokenResponse.java           — JWT 토큰 응답 DTO
 ```
 
@@ -40,19 +52,20 @@ auth 도메인은 이메일/비밀번호 기반 일반 인증과 Kakao OAuth2 �
 
 ### Kakao OAuth2 콜백 처리
 
-Kakao 인증 서버가 발급한 인가 코드(code)를 받아 다음 순서로 처리한다:
+`KakaoAuthController`는 인가 코드(code)를 수신한 뒤 `KakaoAuthService.callback(code)`에 완전히 위임한다.  
+`KakaoAuthService`는 `@Transactional`로 보호되며 다음 순서로 처리한다:
 
 1. 인가 코드로 Kakao access token을 교환한다 (`https://kauth.kakao.com/oauth/token`).
 2. access token으로 카카오 계정 이메일을 조회한다 (`https://kapi.kakao.com/v2/user/me`).
-3. 해당 이메일로 등록된 Member를 조회한다. 존재하지 않으면 이메일만으로 새 Member를 자동 생성한다(password=null).
-4. 신규·기존 회원 관계없이 최신 Kakao access token으로 갱신한 뒤 저장한다.
+3. 해당 이메일로 등록된 Member를 조회한다. 존재하지 않으면 `MemberCommandService.createKakaoMember(email)`로 새 Member를 자동 생성한다(password=null).
+4. 신규·기존 회원 관계없이 `MemberCommandService.updateKakaoAccessToken()`으로 최신 Kakao access token을 갱신한다.
 5. 서비스 JWT를 발급해 반환한다.
 
 Kakao access token은 `member.kakao_access_token` 컬럼에 저장되며, 이후 주문 완료 시 카카오 메시지 발송에 사용된다.
 
 ### 토큰 검증 및 Member 주입
 
-`AuthenticationResolver`는 `Authorization: Bearer {token}` 헤더에서 토큰을 추출하고, JWT 서명을 검증해 이메일을 꺼낸 뒤 DB에서 Member를 조회해 반환한다. 토큰이 유효하지 않거나 헤더가 없으면 예외를 던지지 않고 null을 반환한다. 이 컴포넌트는 인증이 필요한 컨트롤러에서 `@RequestHeader("Authorization")`와 함께 직접 호출된다.
+`AuthService.extractMember(String authorization)`이 `Authorization: Bearer {token}` 헤더에서 토큰을 추출하고, JWT 서명을 검증해 이메일을 꺼낸 뒤 DB에서 Member를 조회해 반환한다. 토큰이 유효하지 않거나 헤더가 없으면 `UnauthorizedException`(→ 401)을 던진다. 인증이 필요한 모든 컨트롤러(WishController, OrderController)가 이 메서드를 통해 Member를 획득한다.
 
 ---
 
@@ -97,9 +110,10 @@ public String getKakaoAccessToken() { ... }
 |--------|------|
 | `AuthService.register(MemberRequest)` | 이메일/비밀번호로 회원 생성 후 JWT 반환 |
 | `AuthService.login(MemberRequest)` | 이메일/비밀번호 검증 후 JWT 반환 |
+| `AuthService.extractMember(String authorization)` | Bearer 토큰 → Member 변환, 실패 시 UnauthorizedException(401) |
+| `KakaoAuthService.callback(String code)` | 인가 코드 → 회원 조회·자동 가입 → JWT 반환 |
 | `JwtProvider.createToken(String email)` | email을 subject로 담은 서명된 JWT 생성 |
 | `JwtProvider.getEmail(String token)` | JWT에서 email(subject) 추출 |
-| `AuthenticationResolver.extractMember(String authorization)` | Bearer 토큰 → Member 변환, 실패 시 null 반환 |
 | `KakaoLoginClient.requestAccessToken(String code)` | 인가 코드 → Kakao access token 교환 |
 | `KakaoLoginClient.requestUserInfo(String accessToken)` | Kakao access token → 사용자 이메일 조회 |
 
@@ -150,18 +164,23 @@ public record TokenResponse(String token) {}
                                                            ├──► [MemberQueryService]    (이메일 조회)
                                                            └──► [JwtProvider]           (JWT 발급)
 
-[KakaoAuthController] ──► [KakaoLoginClient] ──HTTP──► Kakao API (kauth.kakao.com / kapi.kakao.com)
+[KakaoAuthController] ──► [KakaoAuthService(@Transactional)]
+         │                        │
+         │                        ├──► [KakaoLoginClient] ──HTTP──► Kakao API
+         │                        ├──► [MemberQueryService]  (이메일로 회원 조회)
+         │                        ├──► [MemberCommandService] (자동 가입, 토큰 갱신)
+         │                        └──► [JwtProvider]          (JWT 발급)
          │
-         ├──► [MemberRepository]   (회원 조회·저장 직접 호출)
-         └──► [JwtProvider]        (JWT 발급)
+         └──► ResponseEntity<TokenResponse>
 
-[AuthenticationResolver] ──► [JwtProvider]       (토큰 → email)
-                         └──► [MemberRepository] (email → Member)
+[WishController] ──► AuthService.extractMember() ──► Member
+[OrderController] ──► AuthService.extractMember() ──► Member
 
-Member.kakaoAccessToken ──read──► [order.KakaoMessageClient]  (주문 완료 후 알림 발송)
+Member.kakaoAccessToken ──read──► [notification.NotifySendService]  (주문 완료 후 알림 발송)
 ```
 
 - auth 도메인은 Member 도메인에 단방향으로 의존한다. Member 도메인은 auth 도메인을 참조하지 않는다.
-- `KakaoAuthController`는 도메인 서비스를 거치지 않고 `MemberRepository`를 직접 사용한다.
-- `member.kakao_access_token`은 auth 도메인에서 저장하고, order 도메인(`KakaoMessageClient`)에서 읽는다.
+- `KakaoAuthService`는 `MemberCommandService`와 `MemberQueryService`를 통해 Member를 관리한다. Repository 직접 접근 없음.
+- `AuthService.extractMember()`가 Bearer 토큰 검증과 Member 조회를 담당하며, 인증이 필요한 컨트롤러에서 공통으로 사용된다.
+- `member.kakao_access_token`은 auth 도메인에서 저장하고, notification 도메인(`NotifySendService`)에서 읽는다.
 - JWT secret과 expiration은 `application.properties`(`jwt.secret`, `jwt.expiration`)로 외부화되어 있다.

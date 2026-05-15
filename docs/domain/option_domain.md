@@ -12,7 +12,8 @@ src/main/java/gift/option/
 ├── Option.java              — 옵션 엔티티, 재고 차감 도메인 로직 포함
 ├── OptionController.java    — 상품별 옵션 CRUD REST API
 ├── OptionNameValidator.java — 옵션 이름 유효성 검사 (문자 종류, 길이)
-├── OptionRepository.java    — 상품 ID 기반 조회, 이름 중복 확인 쿼리
+├── OptionQueryService.java  — 옵션 조회 서비스 (@Transactional(readOnly=true))
+├── OptionRepository.java    — 상품 ID 기반 조회, 이름 중복 확인, 비관적 락 조회
 ├── OptionRequest.java       — 옵션 생성 요청 DTO (Record)
 └── OptionResponse.java      — 옵션 응답 DTO (Record)
 ```
@@ -163,5 +164,5 @@ Product ──< Option >── Order
 
 - `Option`은 `Product`에 `@ManyToOne`으로 참조된다. `product_id`는 NOT NULL이므로 옵션은 반드시 하나의 상품에 속해야 한다.
 - `orders` 테이블은 `option_id`로 `options`를 참조한다. `ON DELETE CASCADE`가 없으므로 주문이 존재하는 옵션은 DB 레벨에서 직접 삭제할 수 없다.
-- 주문(`Order`) 생성 시 `Option.subtractQuantity()`가 호출되어 재고가 차감된다. 재고 부족 시 주문 처리가 중단된다.
-- 상품(`Product`) 삭제 시 연결된 옵션도 함께 처리해야 하나, `ON DELETE CASCADE`가 없으므로 애플리케이션 레이어에서 순서를 보장해야 한다.
+- 주문(`Order`) 생성 시 `OptionRepository.findByIdWithLock()` (@Lock PESSIMISTIC_WRITE)으로 비관적 락을 획득한 뒤 `Option.subtractQuantity()`가 호출된다. 동시 주문의 재고 정합성을 보장하며, 재고 부족 시 주문 처리가 중단된다.
+- 상품(`Product`) 삭제 시 JPA `CascadeType.ALL + orphanRemoval = true` 설정으로 연관 옵션이 자동 삭제된다 (DB 레벨 CASCADE 없이 JPA 레벨에서 처리).

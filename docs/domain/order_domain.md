@@ -1,7 +1,17 @@
 # 주문 도메인 분석
 
 > 작성일: 2026-05-14  
+> 최종 수정일: 2026-05-15  
 > 분석 대상 브랜치: feature/youth-6-fifth-assignment
+
+---
+
+## 변경 히스토리
+
+| 날짜 | 내용 |
+|------|------|
+| 2026-05-14 | 최초 분석 — KakaoMessageClient가 order 패키지에 위치, 위시 삭제 미구현, @Transactional 누락 버그 |
+| 2026-05-15 | OrderCommandService 분리(@Transactional 수정); 위시 자동 삭제 구현 완료; KakaoMessageClient → notification 패키지로 이동; NotifySendService 추가 |
 
 ---
 
@@ -11,10 +21,16 @@
 src/main/java/gift/order/
 ├── Order.java               — 주문 엔티티 (옵션·회원·수량·메시지·주문일시)
 ├── OrderController.java     — 주문 조회 / 주문 생성 API
+├── OrderCommandService.java — 주문 생성 트랜잭션 처리 (재고 차감·포인트 차감·위시 삭제·저장)
+├── OrderQueryService.java   — 주문 조회 (@Transactional(readOnly=true))
 ├── OrderRepository.java     — 주문 저장소 (회원별 페이징 조회)
 ├── OrderRequest.java        — 주문 생성 요청 DTO
-├── OrderResponse.java       — 주문 응답 DTO
-└── KakaoMessageClient.java  — 주문 완료 후 카카오 나에게 메시지 발송 클라이언트
+└── OrderResponse.java       — 주문 응답 DTO
+
+src/main/java/gift/notification/
+├── MessageClient.java       — 알림 발송 인터페이스
+├── KakaoMessageClient.java  — 카카오 나에게 메시지 발송 구현체
+└── NotifySendService.java   — 알림 발송 가능 여부 판단 후 발송 위임
 ```
 
 테스트 파일: 없음
@@ -23,25 +39,22 @@ src/main/java/gift/order/
 
 ## 2. 비즈니스 로직
 
-주문 도메인은 회원이 상품 옵션을 구매하는 행위를 처리하며, 재고 차감·포인트 결제·카카오 알림 발송을 단일 흐름 안에서 조율한다.
+주문 도메인은 회원이 상품 옵션을 구매하는 행위를 처리하며, 재고 차감·포인트 결제·위시 자동 삭제·카카오 알림 발송을 단일 트랜잭션 흐름 안에서 조율한다.
 
 ### 주문 생성
 
 주문을 생성하려면 유효한 JWT 토큰이 필요하다. 토큰이 없거나 유효하지 않으면 401을 반환한다.
 
-요청한 옵션 ID가 존재하지 않으면 404를 반환하고 처리를 중단한다.
+`OrderCommandService.createOrder()`가 `@Transactional`로 보호되어 다음 순서를 원자적으로 처리한다:
 
-옵션 재고 차감이 먼저 수행된다. 요청 수량이 현재 재고를 초과하면 `IllegalArgumentException`이 발생하며 주문이 생성되지 않는다.
+1. **재고 차감**: `OptionRepository.findByIdWithLock()`으로 비관적 락(Pessimistic Write Lock)을 획득한 뒤 `Option.subtractQuantity(quantity)`를 호출한다. 요청 수량이 현재 재고를 초과하면 `IllegalArgumentException`이 발생한다.
+2. **포인트 차감**: `Member.deductPoint(price * quantity)`로 포인트를 차감한다. 잔액이 부족하면 `IllegalArgumentException`이 발생하며, 재고 차감도 함께 롤백된다.
+3. **위시 삭제**: 해당 회원이 주문한 상품을 위시리스트에 담아 놓았다면 자동으로 삭제한다(`WishCommandService.deleteByMemberIdAndProductId()`).
+4. **주문 저장**: 위 단계가 모두 성공하면 주문을 저장하고 `Order` 엔티티를 반환한다.
 
-포인트 결제는 `옵션이 속한 상품 가격 × 주문 수량`으로 계산된다. 회원의 잔여 포인트가 결제 금액보다 적으면 `IllegalArgumentException`이 발생하며 주문이 생성되지 않는다.
-
-재고 차감과 포인트 차감이 성공하면 주문이 저장된다. 주문일시(`orderDateTime`)는 저장 시점 서버 시각으로 자동 설정된다.
+주문 저장 후 `OrderController`에서 `NotifySendService.sendIfPossible(member, order)`를 호출해 카카오 알림을 발송한다. 알림 발송은 트랜잭션 외부에서 best-effort로 시도되며, 실패해도 주문 결과에 영향을 주지 않는다.
 
 메시지는 선택 사항이다. 요청에 포함하지 않으면 `null`로 저장된다.
-
-주문 저장 후 카카오 알림 발송이 시도된다. 회원에게 Kakao Access Token이 없으면 발송을 건너뛴다. 발송 중 예외가 발생해도 무시하며, 알림 실패는 주문 결과에 영향을 주지 않는다.
-
-`wishRepository`가 컨트롤러에 주입되어 있고 처리 흐름 주석에 "cleanup wish" 단계가 명시되어 있으나, 현재 코드에 실제 위시리스트 삭제 호출은 없다.
 
 ### 주문 조회
 
@@ -161,21 +174,19 @@ public record OrderResponse(
 ## 7. 다른 도메인과의 관계
 
 ```
-Member ──────────────────────────────────────────────────────┐
-  │ (Long memberId, 논리적 참조 — JPA 관계 미매핑)                   │
-  │                                                           ▼
-  │          Option ──(ManyToOne)── Product              Order
-  │            │                                           │
-  │  주문 생성 시 option.subtractQuantity(quantity)         │
-  │  주문 생성 시 member.deductPoint(price)                  │
-  └───────────────────────────────────────────────────────┘
-
-WishRepository (주입 O, 호출 X)
-KakaoMessageClient ← Order + Product (주문 완료 알림, best-effort)
+Member ──(Long memberId, 논리적 참조 — JPA 관계 미매핑)──► Order
+  │
+  │  OrderCommandService.createOrder() (@Transactional)
+  │  ├─ 1. OptionRepository.findByIdWithLock() → Option.subtractQuantity()  [재고 차감 + 비관적 락]
+  │  ├─ 2. MemberRepository → Member.deductPoint()                          [포인트 차감]
+  │  ├─ 3. WishCommandService.deleteByMemberIdAndProductId()                [위시 자동 삭제]
+  │  └─ 4. orderRepository.save(new Order(...))                             [주문 저장]
+  │
+  └─ OrderController (트랜잭션 외부)
+       └─ NotifySendService.sendIfPossible(member, order)                   [카카오 알림, best-effort]
 ```
 
 - `Order.option`은 `@ManyToOne` JPA 관계로 매핑된다. 주문 생성 시 가격 계산을 위해 `option.getProduct().getPrice()`를 호출한다.
 - `Order.memberId`는 `Long` 타입 primitive FK다. DB에는 `member(id)` FK 제약이 존재하지만 JPA 관계는 매핑하지 않는다. 주문 조회 시 Member를 자동 로딩하는 N+1을 방지하기 위한 의도적 설계다.
-- 주문 생성은 Option과 Member 두 도메인의 상태를 변경한다. `Option.subtractQuantity()`로 재고를 차감하고, `Member.deductPoint()`로 포인트를 차감한다.
-- `wishRepository`가 컨트롤러에 주입되어 있으나 현재 주문 생성 흐름에서 호출되지 않는다.
-- `KakaoMessageClient`는 회원의 Kakao Access Token이 있을 때만 호출된다. 발송 실패는 예외를 무시하고 주문 결과에 영향을 주지 않는다.
+- `OptionRepository.findByIdWithLock()`은 `@Lock(LockModeType.PESSIMISTIC_WRITE)`로 동시 주문 시 재고 차감 정합성을 보장한다.
+- `NotifySendService`는 `notification` 패키지에 위치하며, `member.getKakaoAccessToken()`이 null이면 발송을 건너뛴다.
