@@ -1,0 +1,48 @@
+### Product API
+### 상품 CRUD + 페이징
+
+### 1. 모든 상품 조회 (페이징)
+GET {{baseUrl}}/api/products?page=0&size=10
+
+###
+
+### 2. 모든 상품 조회 (정렬 포함)
+GET {{baseUrl}}/api/products?page=0&size=10&sort=name,asc
+
+###
+
+### 3. 상품 상세 조회
+GET {{baseUrl}}/api/products/{{productId}}
+
+###
+
+### 4. 상품 생성
+POST {{baseUrl}}/api/products
+Content-Type: application/json
+
+{
+  "name": "아이폰 15",
+  "price": 1200000,
+  "imageUrl": "https://example.com/iphone15.jpg",
+  "categoryId": 1
+}
+
+###
+
+### 5. 상품 수정
+PUT {{baseUrl}}/api/products/{{productId}}
+Content-Type: application/json
+
+{
+  "name": "아이폰 15 Pro",
+  "price": 1500000,
+  "imageUrl": "https://example.com/iphone15pro.jpg",
+  "categoryId": 1
+}
+
+###
+
+### 6. 상품 삭제
+DELETE {{baseUrl}}/api/products/{{productId}}
+
+###
