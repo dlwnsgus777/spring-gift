@@ -202,6 +202,31 @@ new Product(name, ...); // 내부에서 검증, 위반 시 예외
 
 ---
 
+## HTTP 테스트 파일
+
+IntelliJ HTTP Client로 API를 직접 테스트할 수 있는 `.http` 파일 모음. `http/` 디렉토리에 도메인별로 구성되어 있다.
+
+### 파일 목록
+
+| 파일 | 도메인 | 주요 요청 |
+|------|--------|-----------|
+| `http/auth.http` | 인증 | 카카오 로그인, 회원가입, 로그인 (토큰 자동 저장) |
+| `http/category.http` | 카테고리 | 조회·생성·수정·삭제 |
+| `http/product.http` | 상품 | 조회(페이징)·생성·수정·삭제 |
+| `http/option.http` | 옵션 | 상품별 옵션 조회·생성·삭제 |
+| `http/wish.http` | 위시리스트 | 조회·추가·제거 (JWT 필요) |
+| `http/order.http` | 주문 | 목록 조회·생성 (JWT 필요) |
+| `http/member.http` | 회원 (관리자) | 전체 조회·포인트 충전·삭제 |
+
+### 사용 방법
+
+1. `http/http-client.env.json`의 `local` 환경이 기본 설정 (`baseUrl`: `http://localhost:8080`)
+2. IntelliJ `.http` 파일 편집기 우측 상단 드롭다운에서 **`local`** 선택
+3. `auth.http`에서 로그인 실행 → `token`이 환경 변수에 자동 저장
+4. 이후 JWT가 필요한 요청(`wish.http`, `order.http`)에서 `{{token}}`이 자동으로 채워짐
+
+---
+
 ## AI 도구 활용 기록
 
 | 프롬프트 | 시도한 내용 | 관련 문서 |
@@ -219,6 +244,7 @@ new Product(name, ...); // 내부에서 검증, 위반 시 예외
 | 9단계 코드 정리 — support 패키지·Fixture 도입, notification 패키지 분리, 미사용 코드·주석 제거 | UUIDGenerator + 6개 Fixture 클래스 생성, 17개 테스트 파일 교체, gift.notification 패키지 신설, AuthenticationResolver 삭제, @Autowired·Javadoc·what 주석 제거 | [세션 문서](docs/ai-sessions/2026-05-14-3.md) |
 | KakaoAuth 도메인 10단계 — 계획서 작성 + TDD 11사이클로 KakaoAuthService 추출, KakaoTokenResponse·KakaoUserResponse top-level 분리 | 계획서 작성(FakeKakaoLoginClient 상속 방식), KakaoAuthControllerTest/KakaoAuthServiceTest TDD, MemberQueryService·MemberCommandService 확장, Controller 리팩터링 | [세션 문서](docs/ai-sessions/2026-05-14-4.md) |
 | 현재 코드를 파악해서 docs/domain/ 내부 문서들을 최신화해줘 | 9개 핵심 소스 파일 분석, 6개 기존 도메인 문서 수정 + notification_domain.md 신규 작성 (코드-문서 불일치 7곳 해소) | [세션 문서](docs/ai-sessions/2026-05-15.md) |
+| 각 API를 테스트할 수 있도록 http 파일 만들어줘, 각 도메인별로 | http/ 디렉토리에 도메인별 .http 파일 7개 + 환경변수 파일 생성, README.md에 HTTP 테스트 파일 섹션 추가 | [세션 문서](docs/ai-sessions/2026-05-15-2.md) |
 
 ---
 
