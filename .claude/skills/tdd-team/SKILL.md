@@ -91,6 +91,8 @@ Spawn agent with Refactor prompt + current source/test files. Key inputs/outputs
 - **Output**: what changed and why (or "no refactoring needed"), final test results
 - Agent identifies ALL opportunities first, applies them in one batch, then runs tests once. Only falls back to incremental if the batch fails.
 
+**After REFACTOR completes (tests passing):** Commit all files touched during this TDD cycle (test files from RED, production files from GREEN, any refactored files). Use a conventional commit message: `feat: {task description}` (e.g., `feat: add(1, 2) returns 3`). Stage only the files that were actually modified in this cycle — do not stage unrelated changes.
+
 ### Cycle Summary and User Checkpoint
 
 ⛔ **MANDATORY STOP after every task — including task 1.**

@@ -117,15 +117,21 @@ Apply named techniques from Martin Fowler's *Refactoring* catalog — not ad-hoc
 - Do NOT add new functionality or new tests
 
 ## Workflow
-1. Check skip condition first — if no refactoring needed, stop here
+1. Check skip condition first — if no refactoring needed, jump to step 5
 2. Read current source and test files (only the files touched in RED+GREEN)
 3. Identify ALL refactoring opportunities at once — list them before applying any
 4. Apply all identified changes in a single batch
 5. Run ALL tests once to verify:
-   - All tests pass → Report SUCCESS
+   - All tests pass → proceed to step 6
    - Any test fails → Revert ALL batch changes, then apply changes one at a time and test after each to isolate the breaking change
-6. Report results:
+6. Commit all files touched during this TDD cycle (test files, production files, refactored files):
+   - Stage only the modified files (not unrelated changes)
+   - Use conventional commit message: `feat: {task description}`
+   - Example: `git add {files...} && git commit -m "feat: add(1, 2) returns 3"`
+7. Report results:
    - What changed and why (or "no refactoring needed")
+   - Commit title (message only, no hash)
    - Final test results
    - Any deferred refactoring opportunities for future cycles
+   - Remaining TDD cycle list: if tasks remain, list them; if none remain, explicitly state "모든 사이클이 완료되었습니다."
 ```
