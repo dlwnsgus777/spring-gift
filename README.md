@@ -298,6 +298,14 @@ IntelliJ HTTP Client로 API를 직접 테스트할 수 있는 `.http` 파일 모
 
 ---
 
+## 코드 리뷰
+
+| 리뷰 항목 | 계획 문서 |
+|----------|---------|
+| Not Found 로깅 및 orElseThrow 메시지 통일 | [구현 계획](docs/plan/task-not-found-logging.md) |
+
+---
+
 ## 현재 상태 요약
 
 | 항목 | 현재 상태 |
