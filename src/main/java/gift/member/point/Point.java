@@ -29,7 +29,7 @@ public class Point {
             throw new IllegalArgumentException("차감 금액은 1 이상이어야 합니다.");
         }
         if (amount > this.value) {
-            throw new IllegalArgumentException("포인트가 부족합니다.");
+            throw new InsufficientPointException("포인트가 부족합니다.");
         }
         return new Point(this.value - amount);
     }

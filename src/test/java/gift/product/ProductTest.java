@@ -100,7 +100,7 @@ class ProductTest {
     }
 
     @Test
-    @DisplayName("옵션이 1개일 때 removeOption을 호출하면 IllegalArgumentException을 던진다")
+    @DisplayName("옵션이 1개일 때 removeOption을 호출하면 MinimumOptionException을 던진다")
     void test08() {
         // arrange
         Product product = ProductFixture.builder(DUMMY_CATEGORY).name("상품이름").build();
@@ -110,7 +110,7 @@ class ProductTest {
 
         // act & assert
         assertThatThrownBy(() -> product.removeOption(targetId))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(MinimumOptionException.class);
     }
 
     @Test

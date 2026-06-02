@@ -1,5 +1,6 @@
 package gift.point;
 
+import gift.member.point.InsufficientPointException;
 import gift.member.point.Point;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,14 +48,14 @@ class PointTest {
     }
 
     @Test
-    @DisplayName("잔액보다 큰 금액을 차감하면 IllegalArgumentException을 던진다")
+    @DisplayName("잔액보다 큰 금액을 차감하면 InsufficientPointException을 던진다")
     void test04() {
         // arrange
         Point point = new Point(100);
 
         // act & assert
         assertThatThrownBy(() -> point.deduct(200))
-            .isInstanceOf(IllegalArgumentException.class)
+            .isInstanceOf(InsufficientPointException.class)
             .hasMessage("포인트가 부족합니다.");
     }
 

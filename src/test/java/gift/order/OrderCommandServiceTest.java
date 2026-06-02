@@ -8,6 +8,8 @@ import gift.AbstractIntegrationTest;
 import gift.category.CategoryRepository;
 import gift.member.Member;
 import gift.member.MemberRepository;
+import gift.member.point.InsufficientPointException;
+import gift.option.InsufficientStockException;
 import gift.option.Option;
 import gift.option.OptionRepository;
 import gift.product.Product;
@@ -76,7 +78,7 @@ class OrderCommandServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("재고보다 많은 수량으로 주문하면 IllegalArgumentException이 발생한다")
+    @DisplayName("재고보다 많은 수량으로 주문하면 InsufficientStockException이 발생한다")
     void test02() {
         // arrange
         Option option = savedOption("주문재고부족_" + uuid(), 1000, 2);
@@ -86,11 +88,11 @@ class OrderCommandServiceTest extends AbstractIntegrationTest {
 
         // act + assert
         assertThatThrownBy(() -> orderCommandService.createOrder(member.getId(), option.getId(), 10, null))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(InsufficientStockException.class);
     }
 
     @Test
-    @DisplayName("포인트가 부족하면 IllegalArgumentException이 발생한다")
+    @DisplayName("포인트가 부족하면 InsufficientPointException이 발생한다")
     void test03() {
         // arrange
         Option option = savedOption("주문포인트부족_" + uuid(), 100000, 10);
@@ -98,7 +100,7 @@ class OrderCommandServiceTest extends AbstractIntegrationTest {
 
         // act + assert
         assertThatThrownBy(() -> orderCommandService.createOrder(member.getId(), option.getId(), 1, null))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(InsufficientPointException.class);
     }
 
     @Test
@@ -112,7 +114,7 @@ class OrderCommandServiceTest extends AbstractIntegrationTest {
 
         // act
         assertThatThrownBy(() -> orderCommandService.createOrder(member.getId(), option.getId(), 1, null))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(InsufficientPointException.class);
 
         // assert
         Option fetchedOption = optionRepository.findById(option.getId()).get();
@@ -155,8 +157,8 @@ class OrderCommandServiceTest extends AbstractIntegrationTest {
         CountDownLatch start = new CountDownLatch(1);
         CountDownLatch done = new CountDownLatch(threadCount);
         AtomicInteger successCount = new AtomicInteger(0);
-        // 실패 원인을 구분: IllegalArgumentException(재고 부족) vs 기타(데드락 등 DB 오류)
-        AtomicInteger illegalArgFailCount = new AtomicInteger(0);
+        // 실패 원인을 구분: InsufficientStockException(재고 부족) vs 기타(데드락 등 DB 오류)
+        AtomicInteger stockFailCount = new AtomicInteger(0);
         AtomicInteger unexpectedFailCount = new AtomicInteger(0);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
 
@@ -171,8 +173,8 @@ class OrderCommandServiceTest extends AbstractIntegrationTest {
                 start.await();
                 orderCommandService.createOrder(memberId1, optionId, 1, null);
                 successCount.incrementAndGet();
-            } catch (IllegalArgumentException e) {
-                illegalArgFailCount.incrementAndGet();
+            } catch (InsufficientStockException e) {
+                stockFailCount.incrementAndGet();
             } catch (Exception e) {
                 // 데드락, 낙관적 잠금 실패 등 예상치 못한 예외
                 unexpectedFailCount.incrementAndGet();
@@ -186,8 +188,8 @@ class OrderCommandServiceTest extends AbstractIntegrationTest {
                 start.await();
                 orderCommandService.createOrder(memberId2, optionId, 1, null);
                 successCount.incrementAndGet();
-            } catch (IllegalArgumentException e) {
-                illegalArgFailCount.incrementAndGet();
+            } catch (InsufficientStockException e) {
+                stockFailCount.incrementAndGet();
             } catch (Exception e) {
                 // 데드락, 낙관적 잠금 실패 등 예상치 못한 예외
                 unexpectedFailCount.incrementAndGet();
@@ -201,11 +203,11 @@ class OrderCommandServiceTest extends AbstractIntegrationTest {
         done.await();
         executor.shutdown();
 
-        // assert — 정확히 1건만 성공하고, 나머지 1건은 재고 부족(IllegalArgumentException)으로 실패해야 한다
+        // assert — 정확히 1건만 성공하고, 나머지 1건은 재고 부족(InsufficientStockException)으로 실패해야 한다
         // Pessimistic Lock 없이는:
         //   (a) 둘 다 성공(successCount=2, Lost Update) — 재고 부족 검증 실패
         //   (b) 데드락으로 한 건 실패(unexpectedFailCount=1) — 비즈니스 규칙이 아닌 DB 오류로 처리됨
-        // Pessimistic Lock 적용 시: 정확히 1건 성공, 1건은 IllegalArgumentException(재고 부족)으로 실패
+        // Pessimistic Lock 적용 시: 정확히 1건 성공, 1건은 InsufficientStockException(재고 부족)으로 실패
         assertThat(successCount.get())
             .as("재고 1개 옵션에 동시 주문 2건 중 정확히 1건만 성공해야 한다 (successCount=%d)", successCount.get())
             .isEqualTo(1);

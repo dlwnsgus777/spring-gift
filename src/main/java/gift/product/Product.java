@@ -91,7 +91,7 @@ public class Product {
             .findFirst()
             .orElseThrow(() -> new NoSuchElementException("옵션이 존재하지 않습니다. id=" + optionId));
         if (options.size() <= 1) {
-            throw new IllegalArgumentException("옵션이 1개인 상품은 옵션을 삭제할 수 없습니다.");
+            throw new MinimumOptionException("옵션이 1개인 상품은 옵션을 삭제할 수 없습니다.");
         }
         options.remove(option);
     }

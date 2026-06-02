@@ -170,7 +170,7 @@ class ProductCommandServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("마지막 옵션을 삭제하려 하면 IllegalArgumentException을 던진다")
+    @DisplayName("마지막 옵션을 삭제하려 하면 MinimumOptionException을 던진다")
     void test11() {
         // arrange
         var category = categoryRepository.save(CategoryFixture.builder().name("마지막옵션카테고리").build());
@@ -179,6 +179,6 @@ class ProductCommandServiceTest extends AbstractIntegrationTest {
 
         // act & assert
         assertThatThrownBy(() -> productCommandService.removeOption(product.getId(), onlyOption.getId()))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(MinimumOptionException.class);
     }
 }
