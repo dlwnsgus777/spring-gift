@@ -1,4 +1,4 @@
-package gift.point;
+package gift.member.point;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

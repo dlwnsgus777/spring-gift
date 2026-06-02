@@ -1,5 +1,6 @@
 package gift.point;
 
+import gift.member.point.Point;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

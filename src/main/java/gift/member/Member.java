@@ -1,6 +1,6 @@
 package gift.member;
 
-import gift.point.Point;
+import gift.member.point.Point;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
