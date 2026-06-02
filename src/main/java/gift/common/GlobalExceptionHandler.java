@@ -1,5 +1,8 @@
 package gift.common;
 
+import gift.member.point.InsufficientPointException;
+import gift.option.InsufficientStockException;
+import gift.product.MinimumOptionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -22,6 +25,21 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
+    @ExceptionHandler(InsufficientStockException.class)
+    public ResponseEntity<String> handleInsufficientStock(InsufficientStockException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
+    @ExceptionHandler(InsufficientPointException.class)
+    public ResponseEntity<String> handleInsufficientPoint(InsufficientPointException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
+    @ExceptionHandler(MinimumOptionException.class)
+    public ResponseEntity<String> handleMinimumOption(MinimumOptionException e) {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
