@@ -6,6 +6,8 @@ import gift.product.ProductQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
+
 @Service
 @Transactional
 public class WishCommandService {
@@ -26,7 +28,8 @@ public class WishCommandService {
     }
 
     public void removeWish(Long memberId, Long wishId) {
-        Wish wish = wishRepository.findById(wishId).orElseThrow();
+        Wish wish = wishRepository.findById(wishId)
+            .orElseThrow(() -> new NoSuchElementException("위시리스트가 존재하지 않습니다. id=" + wishId));
         if (!wish.getMemberId().equals(memberId)) {
             throw new ForbiddenException("Not the owner of this wish.");
         }

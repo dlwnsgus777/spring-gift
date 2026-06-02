@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -21,11 +22,13 @@ public class MemberQueryService {
     }
 
     public Member findById(Long id) {
-        return memberRepository.findById(id).orElseThrow();
+        return memberRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다. id=" + id));
     }
 
     public Member findByEmail(String email) {
-        return memberRepository.findByEmail(email).orElseThrow();
+        return memberRepository.findByEmail(email)
+            .orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다. email=" + email));
     }
 
     public Optional<Member> findByEmailOptional(String email) {

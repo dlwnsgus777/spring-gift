@@ -3,6 +3,8 @@ package gift.member;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
+
 @Service
 @Transactional
 public class MemberCommandService {
@@ -21,7 +23,8 @@ public class MemberCommandService {
     }
 
     public Member update(Long id, String email, String password) {
-        Member member = memberRepository.findById(id).orElseThrow();
+        Member member = memberRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다. id=" + id));
         member.update(email, password);
         return member;
     }
@@ -31,7 +34,8 @@ public class MemberCommandService {
     }
 
     public Member chargePoint(Long id, int amount) {
-        Member member = memberRepository.findById(id).orElseThrow();
+        Member member = memberRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다. id=" + id));
         member.chargePoint(amount);
         return member;
     }
@@ -41,7 +45,8 @@ public class MemberCommandService {
     }
 
     public Member updateKakaoAccessToken(Long id, String kakaoAccessToken) {
-        Member member = memberRepository.findById(id).orElseThrow();
+        Member member = memberRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다. id=" + id));
         member.updateKakaoAccessToken(kakaoAccessToken);
         return member;
     }
