@@ -29,13 +29,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InsufficientStockException.class)
-    public ResponseEntity<String> handleInsufficientStock(InsufficientStockException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
+    public ResponseEntity<Void> handleInsufficientStock(InsufficientStockException e) {
+        return ResponseEntity.internalServerError().build();
     }
 
     @ExceptionHandler(InsufficientPointException.class)
-    public ResponseEntity<String> handleInsufficientPoint(InsufficientPointException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
+    public ResponseEntity<Void> handleInsufficientPoint(InsufficientPointException e) {
+        return ResponseEntity.internalServerError().build();
     }
 
     @ExceptionHandler(MinimumOptionException.class)

@@ -136,7 +136,7 @@ class OrderControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("재고보다 많은 수량으로 주문하면 400을 반환한다")
+    @DisplayName("재고보다 많은 수량으로 주문하면 500을 반환한다")
     void test05() throws Exception {
         // arrange
         String email = "order-test05-" + uuid() + "@example.com";
@@ -154,11 +154,11 @@ class OrderControllerTest extends AbstractIntegrationTest {
                 .header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isInternalServerError());
     }
 
     @Test
-    @DisplayName("포인트가 부족하면 400을 반환한다")
+    @DisplayName("포인트가 부족하면 500을 반환한다")
     void test06() throws Exception {
         // arrange
         String email = "order-test06-" + uuid() + "@example.com";
@@ -175,7 +175,7 @@ class OrderControllerTest extends AbstractIntegrationTest {
                 .header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isInternalServerError());
     }
 
     @Test

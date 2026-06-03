@@ -139,11 +139,119 @@ categoryRepository.findById(id)
 
 ---
 
-## 6. 인수 조건 (Acceptance Criteria)
+## 6. 인수 조건 (Acceptance Criteria) — Phase 1
 
-- [ ] 404 응답의 HTTP 상태 코드와 바디가 변경 전과 동일하다
-- [ ] 존재하지 않는 리소스 조회 시 `WARN` 레벨 로그가 남는다
-- [ ] 로그 메시지에 도메인 + 식별자(id 또는 email)가 포함된다
-- [ ] 메시지 없는 `orElseThrow()` 9곳 전부에 메시지가 추가된다
-- [ ] 구조 변경(orElseThrow 메시지)과 동작 변경(log.warn)이 별도 커밋으로 분리된다
+- [x] 404 응답의 HTTP 상태 코드와 바디가 변경 전과 동일하다
+- [x] 존재하지 않는 리소스 조회 시 `WARN` 레벨 로그가 남는다
+- [x] 로그 메시지에 도메인 + 식별자(id 또는 email)가 포함된다
+- [x] 메시지 없는 `orElseThrow()` 9곳 전부에 메시지가 추가된다
+- [x] 구조 변경(orElseThrow 메시지)과 동작 변경(log.warn)이 별도 커밋으로 분리된다
+- [x] 전체 테스트가 Green이다
+
+---
+
+## 7. [Phase 2] 도메인 특화 예외 분리
+
+### 7-0. 초기 커밋(613bea3) 기준 컨트롤러별 원본 상태코드 분석
+
+> 각 컨트롤러가 자체 `@ExceptionHandler`를 가지고 있었고, 컨트롤러마다 처리 방식이 달랐다.
+
+| 시나리오 | 원래 컨트롤러 | 핸들러 위치 | 원본 상태코드 |
+|---------|------------|-----------|------------|
+| 재고 부족 (`subtractQuantity`) | `OrderController` | 없음 | **500** |
+| 포인트 부족 (`deductPoint`) | `OrderController` | 없음 | **500** |
+| 최소 옵션 규칙 (`removeOption`) | `OptionController` | 컨트롤러 내 `@ExceptionHandler` | **400** + 메시지 |
+| 중복 옵션명 (`addOption`) | `OptionController` | 컨트롤러 내 `@ExceptionHandler` | **400** + 메시지 |
+| 상품명 유효성 오류 | `ProductController` | 컨트롤러 내 `@ExceptionHandler` | **400** + 메시지 |
+| 이메일 중복 | `MemberController` | 컨트롤러 내 `@ExceptionHandler` | **400** + 메시지 |
+| 로그인 실패 | `MemberController` | 컨트롤러 내 `@ExceptionHandler` | **400** + 메시지 |
+
+**핵심**: `OrderController`는 초기에 `@ExceptionHandler`가 없어 `IllegalArgumentException` 발생 시 500을 반환했다. 따라서 `InsufficientStockException`·`InsufficientPointException`은 GlobalExceptionHandler에서 처리하지 않아야 원본 동작과 일치한다.
+
+> HTTP 상태 코드는 400으로 동일하게 유지한다. 클라이언트 응답 계약 변경 없음.
+> `IllegalArgumentException` 하나로 처리되는 것들 중 비즈니스 규칙 위반의 의미가 명확한 3곳을 도메인 예외로 분리한다.
+
+### 7-1. 대상
+
+| 위치 | 현재 예외 | 신규 예외 클래스 | 도메인 의미 |
+|------|---------|---------------|-----------|
+| `gift/member/point/Point.java:32` | `IllegalArgumentException` | `InsufficientPointException` | 결제 시 포인트 부족 |
+| `gift/option/Option.java:45` | `IllegalArgumentException` | `InsufficientStockException` | 주문 시 재고 부족 |
+| `gift/product/Product.java:94` | `IllegalArgumentException` | `MinimumOptionException` | 최소 옵션 1개 규칙 위반 |
+
+### 7-2. 구현 방향
+
+- 새 예외 클래스는 `RuntimeException`을 상속, `gift.common` 패키지에 추가 — 기존 `UnauthorizedException`·`ForbiddenException`과 동일한 위치
+- `GlobalExceptionHandler`에 새 핸들러 추가 — 응답 형식은 기존 `handleIllegalArgument`와 동일하게 `ResponseEntity<String>` + 400
+
+### 7-3. 구현 대상 파일
+
+| 파일 | 변경 내용 |
+|------|---------|
+| `gift/common/InsufficientPointException.java` | 신규 생성 |
+| `gift/common/InsufficientStockException.java` | 신규 생성 |
+| `gift/common/MinimumOptionException.java` | 신규 생성 |
+| `gift/member/point/Point.java` | `throw` 변경 (line 32) |
+| `gift/option/Option.java` | `throw` 변경 (line 45) |
+| `gift/product/Product.java` | `throw` 변경 (line 94) |
+| `gift/common/GlobalExceptionHandler.java` | 핸들러 3개 추가 |
+
+### 7-4. 코드 스니핏
+
+**예외 클래스 (3개 동일한 패턴)**
+```java
+package gift.common;
+
+public class InsufficientPointException extends RuntimeException {
+    public InsufficientPointException(String message) {
+        super(message);
+    }
+}
+```
+
+**GlobalExceptionHandler 추가 핸들러**
+```java
+@ExceptionHandler(InsufficientPointException.class)
+public ResponseEntity<String> handleInsufficientPoint(InsufficientPointException e) {
+    return ResponseEntity.badRequest().body(e.getMessage());
+}
+
+@ExceptionHandler(InsufficientStockException.class)
+public ResponseEntity<String> handleInsufficientStock(InsufficientStockException e) {
+    return ResponseEntity.badRequest().body(e.getMessage());
+}
+
+@ExceptionHandler(MinimumOptionException.class)
+public ResponseEntity<String> handleMinimumOption(MinimumOptionException e) {
+    return ResponseEntity.badRequest().body(e.getMessage());
+}
+```
+
+### 7-5. 주요 고려사항
+
+1. **응답 불변**: HTTP 400 + 메시지 바디는 현재와 동일하게 유지한다. 상태 코드 변경(422 등)은 별도 논의가 필요하다.
+2. **커밋 분리**: 예외 클래스 생성 + throw 변경(구조)과 GlobalExceptionHandler 핸들러 추가(동작)를 별도 커밋으로 나눈다.
+
+### 7-6. 구현 순서 (TDD)
+
+**[구조 변경] 예외 클래스 생성 + throw 교체**
+
+1. [ ] 변경 전 전체 테스트 Green 확인 — `./gradlew test`
+2. [ ] `InsufficientPointException`, `InsufficientStockException`, `MinimumOptionException` 신규 생성
+3. [ ] `Point.java:32` — `InsufficientPointException`으로 교체
+4. [ ] `Option.java:45` — `InsufficientStockException`으로 교체
+5. [ ] `Product.java:94` — `MinimumOptionException`으로 교체
+6. [ ] 변경 후 전체 테스트 Green 확인 — `./gradlew test`
+
+**[동작 변경] GlobalExceptionHandler 핸들러 추가**
+
+7. [ ] `GlobalExceptionHandler`에 핸들러 3개 추가
+8. [ ] 변경 후 전체 테스트 Green 확인 — `./gradlew test`
+
+### 7-7. 인수 조건 (Acceptance Criteria)
+
+- [ ] 포인트 부족 시 기존과 동일하게 400 + 메시지를 반환한다
+- [ ] 재고 부족 시 기존과 동일하게 400 + 메시지를 반환한다
+- [ ] 최소 옵션 규칙 위반 시 기존과 동일하게 400 + 메시지를 반환한다
+- [ ] 구조 변경(throw 교체)과 동작 변경(핸들러 추가)이 별도 커밋으로 분리된다
 - [ ] 전체 테스트가 Green이다
