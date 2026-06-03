@@ -1,4 +1,4 @@
-# ADR 009: Not Found 처리를 커스텀 도메인 예외 없이 NoSuchElementException + GlobalExceptionHandler 로깅으로 통일
+# ADR 009: 예외 처리 전략 — Not Found 로깅, 도메인 예외 분리, 원본 상태코드 보존
 
 - **상태**: 수락됨 (Accepted)
 - **날짜**: 2026-06-02
@@ -79,3 +79,34 @@ public ResponseEntity<Void> handleNotFound(NoSuchElementException e) {
 **부정적:**
 - 도메인별 예외 클래스가 없으므로 나중에 도메인마다 다른 HTTP 상태 코드가 필요해지면 핸들러 분기가 복잡해질 수 있음
 - 로그에 email이 포함되므로 로그 접근 권한 관리가 필요
+
+---
+
+## 후속 결정: 비즈니스 규칙 위반 예외 분리 및 원본 상태코드 보존
+
+Not Found 이외의 `IllegalArgumentException` 사용처를 분석한 결과, 비즈니스 규칙 위반 3곳을 도메인 특화 예외로 분리하기로 결정했다. 이 과정에서 초기 커밋(613bea3) 기준 원본 상태코드를 분석하고, 그 동작을 보존하는 방향으로 `GlobalExceptionHandler`를 설정했다.
+
+### 원본 컨트롤러별 상태코드 분석
+
+초기 코드에서 컨트롤러마다 `@ExceptionHandler` 보유 여부가 달랐다:
+
+| 시나리오 | 원래 컨트롤러 | 원본 상태코드 |
+|---------|------------|------------|
+| 재고 부족 (`subtractQuantity`) | `OrderController` — 핸들러 없음 | **500** |
+| 포인트 부족 (`deductPoint`) | `OrderController` — 핸들러 없음 | **500** |
+| 최소 옵션 규칙 (`removeOption`) | `OptionController` — 컨트롤러 내 `@ExceptionHandler` 보유 | **400** + 메시지 |
+
+### 후속 결정 내용
+
+`IllegalArgumentException`으로 통합되어 있던 비즈니스 규칙 위반 3곳을 도메인 패키지 내 전용 예외 클래스로 분리한다:
+
+- `gift.option.InsufficientStockException` → `GlobalExceptionHandler`에서 **500** 반환 (OrderController 원본과 일치)
+- `gift.member.point.InsufficientPointException` → `GlobalExceptionHandler`에서 **500** 반환 (OrderController 원본과 일치)
+- `gift.product.MinimumOptionException` → `GlobalExceptionHandler`에서 **400** + 메시지 반환 (OptionController 원본과 일치)
+
+### 후속 결정에서 고려한 대안
+
+| 대안 | 기각 이유 |
+|------|----------|
+| 재고·포인트 예외도 400 반환 | 리팩터링 스코프이므로 원본 동작(500)을 변경하면 안 됨. 400으로 개선하는 것은 별도 논의가 필요한 동작 변경임 |
+| 핸들러 없이 예외 전파 | `@AutoConfigureMockMvc` 환경에서 미처리 예외는 MockMvc가 500으로 변환하지 않고 테스트로 전파되어 컨트롤러 테스트 작성이 불가능해짐. 명시적 핸들러로 500을 반환해야 테스트 검증이 가능함 |

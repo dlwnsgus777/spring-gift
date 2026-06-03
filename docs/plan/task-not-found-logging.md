@@ -236,22 +236,22 @@ public ResponseEntity<String> handleMinimumOption(MinimumOptionException e) {
 
 **[구조 변경] 예외 클래스 생성 + throw 교체**
 
-1. [ ] 변경 전 전체 테스트 Green 확인 — `./gradlew test`
-2. [ ] `InsufficientPointException`, `InsufficientStockException`, `MinimumOptionException` 신규 생성
-3. [ ] `Point.java:32` — `InsufficientPointException`으로 교체
-4. [ ] `Option.java:45` — `InsufficientStockException`으로 교체
-5. [ ] `Product.java:94` — `MinimumOptionException`으로 교체
-6. [ ] 변경 후 전체 테스트 Green 확인 — `./gradlew test`
+1. [x] 변경 전 전체 테스트 Green 확인 — `./gradlew test`
+2. [x] `InsufficientPointException`, `InsufficientStockException`, `MinimumOptionException` 신규 생성
+3. [x] `Point.java:32` — `InsufficientPointException`으로 교체
+4. [x] `Option.java:45` — `InsufficientStockException`으로 교체
+5. [x] `Product.java:94` — `MinimumOptionException`으로 교체
+6. [x] 변경 후 전체 테스트 Green 확인 — `./gradlew test`
 
 **[동작 변경] GlobalExceptionHandler 핸들러 추가**
 
-7. [ ] `GlobalExceptionHandler`에 핸들러 3개 추가
-8. [ ] 변경 후 전체 테스트 Green 확인 — `./gradlew test`
+7. [x] `GlobalExceptionHandler`에 핸들러 추가 (재고·포인트 → 500, 최소옵션 → 400)
+8. [x] 변경 후 전체 테스트 Green 확인 — `./gradlew test`
 
 ### 7-7. 인수 조건 (Acceptance Criteria)
 
-- [ ] 포인트 부족 시 기존과 동일하게 400 + 메시지를 반환한다
-- [ ] 재고 부족 시 기존과 동일하게 400 + 메시지를 반환한다
-- [ ] 최소 옵션 규칙 위반 시 기존과 동일하게 400 + 메시지를 반환한다
-- [ ] 구조 변경(throw 교체)과 동작 변경(핸들러 추가)이 별도 커밋으로 분리된다
-- [ ] 전체 테스트가 Green이다
+- [x] 포인트 부족 시 초기 코드 동작과 동일하게 **500**을 반환한다 (OrderController 원본 핸들러 없음)
+- [x] 재고 부족 시 초기 코드 동작과 동일하게 **500**을 반환한다 (OrderController 원본 핸들러 없음)
+- [x] 최소 옵션 규칙 위반 시 초기 코드 동작과 동일하게 **400** + 메시지를 반환한다 (OptionController 원본 핸들러 있음)
+- [x] 구조 변경(throw 교체)과 동작 변경(핸들러 추가)이 별도 커밋으로 분리된다
+- [x] 전체 테스트가 Green이다
