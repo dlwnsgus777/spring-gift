@@ -303,6 +303,7 @@ IntelliJ HTTP Client로 API를 직접 테스트할 수 있는 `.http` 파일 모
 | 리뷰 항목 | 계획 문서 |
 |----------|---------|
 | Not Found 로깅 및 orElseThrow 메시지 통일 | [구현 계획](docs/plan/task-not-found-logging.md) |
+| 카테고리 삭제 시 연결 상품 존재 → 409 처리 | [구현 계획](task-category-delete-conflict.md) |
 
 ---
 

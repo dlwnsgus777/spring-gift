@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CategoryHasProductsException.class)
     public ResponseEntity<String> handleCategoryHasProducts(CategoryHasProductsException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 
     @ExceptionHandler(UnauthorizedException.class)
