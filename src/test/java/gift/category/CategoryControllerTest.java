@@ -118,4 +118,15 @@ class CategoryControllerTest extends AbstractIntegrationTest {
         mockMvc.perform(delete("/api/categories/999999"))
             .andExpect(status().isNoContent());
     }
+
+    @Test
+    @DisplayName("연결된 상품이 있는 카테고리를 삭제하면 409를 반환한다")
+    void test08() throws Exception {
+        // arrange - 시드 데이터의 첫 번째 카테고리(전자기기)는 상품과 연결되어 있다
+        Category categoryWithProducts = categoryRepository.findAll().get(0);
+
+        // act & assert
+        mockMvc.perform(delete("/api/categories/" + categoryWithProducts.getId()))
+            .andExpect(status().isConflict());
+    }
 }
