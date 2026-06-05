@@ -73,4 +73,15 @@ class CategoryCommandServiceTest extends AbstractIntegrationTest {
         // assert
         assertThat(categoryRepository.findById(saved.getId())).isEmpty();
     }
+
+    @Test
+    @DisplayName("연결된 상품이 있는 카테고리를 삭제하면 CategoryHasProductsException을 던진다")
+    void test05() {
+        // arrange - Flyway V2 시드 데이터의 첫 번째 카테고리(상품과 연결되어 있음)
+        Long categoryIdWithProducts = categoryRepository.findAll().get(0).getId();
+
+        // act & assert
+        assertThatThrownBy(() -> categoryCommandService.delete(categoryIdWithProducts))
+            .isInstanceOf(CategoryHasProductsException.class);
+    }
 }

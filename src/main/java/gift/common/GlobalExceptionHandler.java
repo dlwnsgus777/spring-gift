@@ -1,5 +1,6 @@
 package gift.common;
 
+import gift.category.CategoryHasProductsException;
 import gift.member.point.InsufficientPointException;
 import gift.option.InsufficientStockException;
 import gift.product.MinimumOptionException;
@@ -40,6 +41,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MinimumOptionException.class)
     public ResponseEntity<String> handleMinimumOption(MinimumOptionException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
+    @ExceptionHandler(CategoryHasProductsException.class)
+    public ResponseEntity<String> handleCategoryHasProducts(CategoryHasProductsException e) {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 

@@ -1,5 +1,6 @@
 package gift.category;
 
+import gift.product.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,9 +11,11 @@ import java.util.NoSuchElementException;
 public class CategoryCommandService {
 
     private final CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
 
-    public CategoryCommandService(CategoryRepository categoryRepository) {
+    public CategoryCommandService(CategoryRepository categoryRepository, ProductRepository productRepository) {
         this.categoryRepository = categoryRepository;
+        this.productRepository = productRepository;
     }
 
     public Category create(CategoryRequest request) {
@@ -27,6 +30,9 @@ public class CategoryCommandService {
     }
 
     public void delete(Long id) {
+        if (productRepository.existsByCategoryId(id)) {
+            throw new CategoryHasProductsException("카테고리에 연결된 상품이 있습니다. id=" + id);
+        }
         categoryRepository.deleteById(id);
     }
 }
