@@ -32,6 +32,8 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Option> options = new ArrayList<>();
 
+    private boolean deleted = false;
+
     protected Product() {
     }
 
@@ -73,6 +75,14 @@ public class Product {
 
     public List<Option> getOptions() {
         return options;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void delete() {
+        this.deleted = true;
     }
 
     public Option addOption(String name, int quantity) {
