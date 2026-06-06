@@ -19,15 +19,15 @@ public class ProductQueryService {
     }
 
     public Product findById(Long id) {
-        return productRepository.findById(id)
+        return productRepository.findByIdAndDeletedFalse(id)
             .orElseThrow(() -> new NoSuchElementException("상품이 존재하지 않습니다. id=" + id));
     }
 
     public Page<Product> findAll(Pageable pageable) {
-        return productRepository.findAll(pageable);
+        return productRepository.findAllByDeletedFalse(pageable);
     }
 
     public List<Product> findAll() {
-        return productRepository.findAll();
+        return productRepository.findAllByDeletedFalse();
     }
 }

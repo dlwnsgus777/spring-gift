@@ -30,7 +30,7 @@ public class CategoryCommandService {
     }
 
     public void delete(Long id) {
-        if (productRepository.existsByCategoryId(id)) {
+        if (productRepository.existsByCategoryIdAndDeletedFalse(id)) {
             throw new CategoryHasProductsException("카테고리에 연결된 상품이 있습니다. id=" + id);
         }
         categoryRepository.deleteById(id);
