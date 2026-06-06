@@ -14,7 +14,7 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
     private Flyway flyway;
 
     @Test
-    @DisplayName("Flyway V1, V2 마이그레이션이 정상 적용된다")
+    @DisplayName("Flyway V1, V2, V3 마이그레이션이 정상 적용된다")
     void test01() {
         // arrange
         // AbstractIntegrationTest가 컨테이너와 Spring Context를 준비
@@ -23,8 +23,9 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
         MigrationInfo[] appliedMigrations = flyway.info().applied();
 
         // assert
-        assertThat(appliedMigrations).hasSize(2);
+        assertThat(appliedMigrations).hasSize(3);
         assertThat(appliedMigrations[0].getDescription()).contains("Initialize");
         assertThat(appliedMigrations[1].getDescription()).contains("Insert");
+        assertThat(appliedMigrations[2].getDescription()).contains("Add deleted");
     }
 }
