@@ -129,6 +129,22 @@
 
 ---
 
+### 버그 수정: 상품 삭제 시 FK 제약 위반 — [구현 계획](task-product-soft-delete.md)
+
+> 상품 삭제 시 wish/order FK 제약 위반을 소프트 삭제로 해결
+
+- [x] `V3__Add_deleted_to_product.sql` — `deleted BOOLEAN NOT NULL DEFAULT FALSE` 컬럼 추가
+- [x] `Product.java` — `deleted` 필드 + `isDeleted()` + `delete()`
+- [x] `ProductRepository.java` — `findByIdAndDeletedFalse`, `findAllByDeletedFalse`, `existsByCategoryIdAndDeletedFalse` 추가
+- [x] `ProductQueryService.java` — 삭제된 상품을 조회에서 제외하는 필터 적용
+- [x] `CategoryCommandService.java` — `existsByCategoryIdAndDeletedFalse` 적용
+- [x] `WishRepository.java` — `deleteByProductId()` 추가
+- [x] `ProductCommandService.delete()` — 소프트 삭제 + 위시 연계 삭제
+- [x] `ProductCommandServiceTest.java` — `test06` 수정 + `test12` 추가 (위시 연계 삭제)
+- [x] `ProductQueryServiceTest.java` — `test04` 추가 (소프트 삭제 후 조회 제외)
+
+---
+
 ### 9단계: 코드 정리
 
 > 전체 도메인 완료 후 공통 코드 품질 개선
