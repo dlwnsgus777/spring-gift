@@ -63,4 +63,19 @@ class ProductQueryServiceTest extends AbstractIntegrationTest {
         // assert
         assertThat(result.getContent()).isNotEmpty();
     }
+
+    @Test
+    @DisplayName("소프트 삭제된 상품은 전체 목록 조회에서 제외된다")
+    void test04() {
+        // arrange
+        var category = categoryRepository.save(CategoryFixture.builder().name("소프트삭제카테고리").build());
+        Product saved = productRepository.save(ProductFixture.builder(category).name("소프트삭제상품").build());
+        saved.delete();
+
+        // act
+        var result = productQueryService.findAll();
+
+        // assert
+        assertThat(result).extracting(Product::getId).doesNotContain(saved.getId());
+    }
 }

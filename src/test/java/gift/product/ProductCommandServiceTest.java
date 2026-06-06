@@ -10,6 +10,9 @@ import gift.option.OptionRepository;
 import gift.option.OptionRequest;
 import gift.support.CategoryFixture;
 import gift.support.ProductFixture;
+import gift.wish.Wish;
+import gift.wish.WishRepository;
+import jakarta.persistence.EntityManager;
 import java.util.NoSuchElementException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +33,12 @@ class ProductCommandServiceTest extends AbstractIntegrationTest {
 
     @Autowired
     private OptionRepository optionRepository;
+
+    @Autowired
+    private WishRepository wishRepository;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Test
     @DisplayName("유효한 요청으로 상품을 생성하면 저장된 상품을 반환한다")
@@ -108,8 +117,24 @@ class ProductCommandServiceTest extends AbstractIntegrationTest {
         // act
         productCommandService.delete(saved.getId());
 
+        // assert — 소프트 삭제 후 deleted=false 조건 메서드로 조회되지 않음
+        assertThat(productRepository.findByIdAndDeletedFalse(saved.getId())).isEmpty();
+    }
+
+    @Test
+    @DisplayName("상품을 삭제하면 연결된 위시도 함께 삭제된다")
+    void test12() {
+        // arrange
+        var category = categoryRepository.save(CategoryFixture.builder().name("위시삭제카테고리").build());
+        Product product = productRepository.save(ProductFixture.builder(category).name("위시삭제상품").build());
+        Long memberId = 1L;
+        wishRepository.save(new Wish(memberId, product));
+
+        // act
+        productCommandService.delete(product.getId());
+
         // assert
-        assertThat(productRepository.findById(saved.getId())).isEmpty();
+        assertThat(wishRepository.findByMemberIdAndProductId(memberId, product.getId())).isEmpty();
     }
 
     @Test
@@ -161,6 +186,7 @@ class ProductCommandServiceTest extends AbstractIntegrationTest {
         Product product = productRepository.save(ProductFixture.builder(category).name("삭제옵션상품").build());
         Option option1 = productCommandService.addOption(product.getId(), new OptionRequest("옵션X", 10));
         productCommandService.addOption(product.getId(), new OptionRequest("옵션Y", 20));
+        entityManager.flush();
 
         // act
         productCommandService.removeOption(product.getId(), option1.getId());
@@ -176,6 +202,7 @@ class ProductCommandServiceTest extends AbstractIntegrationTest {
         var category = categoryRepository.save(CategoryFixture.builder().name("마지막옵션카테고리").build());
         Product product = productRepository.save(ProductFixture.builder(category).name("마지막옵션상품").build());
         Option onlyOption = productCommandService.addOption(product.getId(), new OptionRequest("유일옵션", 10));
+        entityManager.flush();
 
         // act & assert
         assertThatThrownBy(() -> productCommandService.removeOption(product.getId(), onlyOption.getId()))
