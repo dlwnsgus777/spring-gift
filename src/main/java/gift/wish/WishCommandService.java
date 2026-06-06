@@ -31,7 +31,7 @@ public class WishCommandService {
         Wish wish = wishRepository.findById(wishId)
             .orElseThrow(() -> new NoSuchElementException("위시리스트가 존재하지 않습니다. id=" + wishId));
         if (!wish.getMemberId().equals(memberId)) {
-            throw new ForbiddenException("Not the owner of this wish.");
+            throw new ForbiddenException("권한이 없습니다.");
         }
         wishRepository.delete(wish);
     }
