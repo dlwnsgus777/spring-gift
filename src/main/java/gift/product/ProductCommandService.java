@@ -4,6 +4,7 @@ import gift.category.Category;
 import gift.category.CategoryQueryService;
 import gift.option.Option;
 import gift.option.OptionRequest;
+import gift.wish.WishRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,15 +15,18 @@ public class ProductCommandService {
     private final ProductRepository productRepository;
     private final ProductQueryService productQueryService;
     private final CategoryQueryService categoryQueryService;
+    private final WishRepository wishRepository;
 
     public ProductCommandService(
         ProductRepository productRepository,
         ProductQueryService productQueryService,
-        CategoryQueryService categoryQueryService
+        CategoryQueryService categoryQueryService,
+        WishRepository wishRepository
     ) {
         this.productRepository = productRepository;
         this.productQueryService = productQueryService;
         this.categoryQueryService = categoryQueryService;
+        this.wishRepository = wishRepository;
     }
 
     public Product create(ProductRequest request) {
@@ -44,7 +48,9 @@ public class ProductCommandService {
     }
 
     public void delete(Long id) {
-        productRepository.deleteById(id);
+        Product product = productQueryService.findById(id);
+        wishRepository.deleteByProductId(id);
+        product.delete();
     }
 
     public Option addOption(Long productId, OptionRequest request) {
